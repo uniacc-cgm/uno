@@ -1,0 +1,1368 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acreditación UNIACC 2026 - Master Interactivo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+        body { font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f8fafc; }
+        
+        /* Paleta Oficial UNIACC */
+        :root {
+            --uniacc-blue: #3E8CBF;
+            --uniacc-pink: #E6007E;
+            --uniacc-orange: #F37021;
+            --uniacc-black: #000000;
+            --uniacc-grey: #808285;
+        }
+        .bg-uniacc-blue { background-color: var(--uniacc-blue); }
+        .bg-uniacc-pink { background-color: var(--uniacc-pink); }
+        .bg-uniacc-orange { background-color: var(--uniacc-orange); }
+        .text-uniacc-blue { color: var(--uniacc-blue); }
+        .text-uniacc-pink { color: var(--uniacc-pink); }
+        .text-uniacc-orange { color: var(--uniacc-orange); }
+        .border-uniacc-blue { border-color: var(--uniacc-blue); }
+        .border-uniacc-pink { border-color: var(--uniacc-pink); }
+        .border-uniacc-orange { border-color: var(--uniacc-orange); }
+
+        /* Animaciones base */
+        .fade-in { animation: fadeIn 0.5s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade-in-up { animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
+        
+        /* Scrollbar custom */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #a8a8a8; }
+
+        /* Flip Card CSS (Glossary) */
+        .perspective { perspective: 1000px; }
+        .transform-style-preserve-3d { transform-style: preserve-3d; }
+        .backface-hidden { backface-visibility: hidden; }
+        .rotate-y-180 { transform: rotateY(180deg); }
+        
+        /* Image Hero styling */
+        .hero-pattern {
+            background-image: url('https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&q=80&w=2000');
+            background-size: cover;
+            background-position: center;
+            background-blend-mode: overlay;
+            background-color: rgba(0,0,0,0.8);
+        }
+        .hero-pattern-sello {
+            background-image: url('https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&q=80&w=2000');
+            background-size: cover;
+            background-position: center;
+            background-blend-mode: overlay;
+            background-color: rgba(0,0,0,0.85);
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        // --- COMPONENTS REUTILIZABLES ---
+        
+        // Circular Progress SVG Component
+        const CircularProgress = ({ percentage, color, label }) => {
+            const [progress, setProgress] = useState(0);
+            const radius = 36;
+            const circumference = 2 * Math.PI * radius;
+            
+            useEffect(() => {
+                const timer = setTimeout(() => setProgress(percentage), 300);
+                return () => clearTimeout(timer);
+            }, [percentage]);
+
+            const offset = circumference - (progress / 100) * circumference;
+            
+            return (
+                <div className="flex flex-col items-center bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                    <div className="relative w-28 h-28 mb-3">
+                        <svg className="w-full h-full transform -rotate-90 drop-shadow-sm" viewBox="0 0 100 100">
+                            <circle cx="50" cy="50" r={radius} stroke="#f1f5f9" strokeWidth="8" fill="transparent" />
+                            <circle cx="50" cy="50" r={radius} stroke={color} strokeWidth="8" fill="transparent" 
+                                    strokeDasharray={circumference} strokeDashoffset={offset} 
+                                    strokeLinecap="round"
+                                    className="transition-all duration-1000 ease-out" />
+                        </svg>
+                        <div className="absolute inset-0 flex items-center justify-center flex-col">
+                            <span className="font-black text-2xl" style={{color: color}}>{percentage}%</span>
+                        </div>
+                    </div>
+                    <span className="font-bold text-sm text-gray-800 text-center uppercase tracking-wide">{label}</span>
+                </div>
+            );
+        };
+
+        // Flip Card Component (Glosario)
+        const FlipCard = ({ term, desc, color }) => {
+            const [isFlipped, setIsFlipped] = useState(false);
+            return (
+                <div className="relative w-full h-48 cursor-pointer group perspective" onClick={() => setIsFlipped(!isFlipped)}>
+                    <div className={`w-full h-full transition-transform duration-500 transform-style-preserve-3d ${isFlipped ? 'rotate-y-180' : ''}`}>
+                        {/* Front */}
+                        <div className="absolute w-full h-full backface-hidden bg-white border border-gray-200 rounded-2xl shadow-sm flex flex-col items-center justify-center p-6 text-center hover:border-gray-300 transition-colors">
+                            <div className="w-14 h-14 rounded-full mb-4 flex items-center justify-center shadow-inner" style={{backgroundColor: `${color}15`}}>
+                                <i data-lucide="bookmark" className="w-6 h-6" style={{color: color}}></i>
+                            </div>
+                            <h4 className="font-bold text-lg text-gray-800">{term}</h4>
+                            <p className="text-xs text-gray-400 mt-3 flex items-center"><i data-lucide="mouse-pointer-click" className="w-3 h-3 mr-1"></i> Clic para voltear</p>
+                        </div>
+                        {/* Back */}
+                        <div className="absolute w-full h-full backface-hidden border-2 rounded-2xl shadow-md p-6 flex flex-col items-center justify-center rotate-y-180 overflow-y-auto bg-gray-50" style={{borderColor: color}}>
+                            <h4 className="font-bold text-sm mb-3 uppercase tracking-wider" style={{color: color}}>{term}</h4>
+                            <p className="text-sm text-gray-700 leading-relaxed text-center font-medium">{desc}</p>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // Chat Simulator Component (Simulador)
+        const SimQuestion = ({ q, a }) => {
+            const [revealed, setRevealed] = useState(false);
+            return (
+                <div className="mb-10 flex flex-col">
+                    {/* Par Evaluador (Left) */}
+                    <div className="flex items-end mb-6 max-w-3xl">
+                        <div className="w-12 h-12 rounded-full bg-gray-200 border-2 border-white shadow-sm flex items-center justify-center mr-4 flex-shrink-0 z-10">
+                            <i data-lucide="user" className="w-6 h-6 text-gray-500"></i>
+                        </div>
+                        <div className="bg-white p-5 rounded-3xl rounded-bl-sm border border-gray-200 shadow-sm relative text-gray-800 transform transition-transform hover:-translate-y-1">
+                            <span className="text-xs font-bold text-gray-400 absolute -top-5 left-2 uppercase tracking-widest">Par Evaluador CNA</span>
+                            <p className="font-medium text-[15px] leading-relaxed">"{q}"</p>
+                        </div>
+                    </div>
+                    
+                    {/* User Answer (Right) */}
+                    <div className="flex items-end justify-end max-w-3xl self-end">
+                        <div className="flex flex-col items-end w-full">
+                            {!revealed ? (
+                                <button onClick={() => setRevealed(true)} className="bg-uniacc-orange hover:bg-orange-600 text-white font-bold py-3 px-8 rounded-full shadow-lg transition-all transform hover:scale-105 flex items-center active:scale-95">
+                                    <i data-lucide="eye" className="w-5 h-5 mr-2"></i> Pensar y Mostrar Respuesta
+                                </button>
+                            ) : (
+                                <div className="flex items-end animate-fade-in-up">
+                                    <div className="bg-blue-50 p-6 rounded-3xl rounded-br-sm border border-blue-200 shadow-md relative order-1 mr-4">
+                                        <span className="text-xs font-bold text-uniacc-blue absolute -top-5 right-2 uppercase tracking-widest">Tú (Coord. Gráfico)</span>
+                                        <p className="text-[15px] text-gray-800 leading-relaxed italic">«{a}»</p>
+                                    </div>
+                                    <div className="w-12 h-12 rounded-full bg-uniacc-blue border-2 border-white shadow-md flex items-center justify-center flex-shrink-0 order-2 z-10">
+                                        <i data-lucide="mic" className="w-5 h-5 text-white"></i>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const TitleHeader = ({ title, docSource, icon }) => (
+            <div className="mb-10 bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div className="flex items-center">
+                    <div className="p-4 rounded-xl mr-5 bg-orange-50 border border-orange-100 shadow-inner">
+                        <i data-lucide={icon} className="w-8 h-8 text-uniacc-orange"></i>
+                    </div>
+                    <h2 className="text-3xl font-black text-gray-900 tracking-tight">{title}</h2>
+                </div>
+                <div className="flex items-center text-xs font-bold bg-gray-50 px-4 py-2 rounded-full border border-gray-200 text-gray-500">
+                    <i data-lucide="file-text" className="w-4 h-4 mr-2 text-gray-400"></i> {docSource}
+                </div>
+            </div>
+        );
+
+        const RoleAlert = ({ title, children }) => (
+            <div className="bg-white border-l-8 border-uniacc-pink p-8 rounded-2xl mt-10 shadow-lg relative overflow-hidden group hover:-translate-y-1 transition-transform">
+                <div className="absolute -top-10 -right-10 p-4 opacity-5 group-hover:opacity-10 group-hover:rotate-12 transition-all duration-500">
+                    <i data-lucide="target" className="w-48 h-48 text-uniacc-pink"></i>
+                </div>
+                <h4 className="flex items-center font-black text-xl mb-4 relative z-10 text-gray-900 uppercase tracking-wide">
+                    <div className="bg-pink-100 p-2 rounded-lg mr-3 shadow-sm">
+                        <i data-lucide="target" className="w-6 h-6 text-uniacc-pink"></i> 
+                    </div>
+                    Aplicación en tu rol: {title}
+                </h4>
+                <div className="text-gray-700 text-base space-y-4 leading-relaxed relative z-10 pl-14">
+                    {children}
+                </div>
+            </div>
+        );
+
+        // --- MAIN APP ---
+        const App = () => {
+            const [activeTab, setActiveTab] = useState('simulador');
+
+            // ESTO ES LO QUE ARREGLA LOS ICONOS
+            // Este Hook se ejecuta cada vez que el componente se renderiza o activeTab cambia
+            useEffect(() => {
+                if (window.lucide) {
+                    window.lucide.createIcons();
+                }
+            }, [activeTab]);
+
+            const menuGroups = [
+                {
+                    title: "Fase 1: Visión institucional",
+                    items: [
+                        { id: 'contexto', label: '1. Contexto y mensajes', icon: 'flag' },
+                        { id: 'cna', label: '2. Orientaciones CNA', icon: 'file-text' },
+                        { id: 'sello', label: '3. Sello humanista', icon: 'heart' }
+                    ]
+                },
+                {
+                    title: "Fase 2: Ecosistema",
+                    items: [
+                        { id: 'dip', label: '4. Investigación (DIP)', icon: 'microscope' }
+                    ]
+                },
+                {
+                    title: "Fase 3: Tu trabajo (DAVDA)",
+                    items: [
+                        { id: 'mi_rol', label: '5. Ficha: Mi rol', icon: 'user-check' },
+                        { id: 'dtp', label: '6. Modelos DTP', icon: 'monitor' },
+                        { id: 'davda', label: '7. Flujo QA y avances', icon: 'check-circle' }
+                    ]
+                },
+                {
+                    title: "Fase 4: Práctica",
+                    items: [
+                        { id: 'glosario', label: '8. Glosario', icon: 'book' },
+                        { id: 'simulador', label: '9. Simulador entrevista', icon: 'message-square' }
+                    ]
+                }
+            ];
+
+            const renderContent = () => {
+                switch(activeTab) {
+                    case 'contexto': return <Contexto />;
+                    case 'sello': return <Sello />;
+                    case 'mi_rol': return <MiRol />;
+                    case 'dtp': return <ModelosDTP />;
+                    case 'davda': return <FlujoQA />;
+                    case 'dip': return <Investigacion />;
+                    case 'cna': return <OrientacionesCNA />;
+                    case 'glosario': return <Glosario />;
+                    case 'simulador': return <Simulador />;
+                    default: return <Simulador />;
+                }
+            };
+
+            return (
+                <div className="flex h-screen bg-gray-50 overflow-hidden font-sans text-gray-800">
+                    <div className="w-72 bg-[#0a0a0a] text-white flex flex-col shadow-2xl z-20 border-r-4 border-uniacc-orange relative">
+                        {/* Decorative BG */}
+                        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMiIgY3k9IjIiIHI9IjEiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4wNSkiLz48L3N2Zz4=')]"></div>
+                        
+                        <div className="p-6 bg-black/50 backdrop-blur-sm border-b border-gray-800 relative z-10">
+                            <div className="flex items-center space-x-1.5 mb-4">
+                                <div className="h-1.5 w-8 rounded-full bg-uniacc-orange shadow-[0_0_10px_rgba(243,112,33,0.5)]"></div>
+                                <div className="h-1.5 w-8 rounded-full bg-uniacc-blue shadow-[0_0_10px_rgba(62,140,191,0.5)]"></div>
+                                <div className="h-1.5 w-8 rounded-full bg-uniacc-pink shadow-[0_0_10px_rgba(230,0,126,0.5)]"></div>
+                            </div>
+                            <h1 className="text-2xl font-black text-white tracking-tight">UNIACC <span className="text-uniacc-orange">2026</span></h1>
+                            <p className="text-[10px] text-gray-400 mt-1 uppercase tracking-[0.2em] font-bold">Ruta de aprendizaje</p>
+                            
+                            <div className="mt-5 p-4 bg-gray-900/80 rounded-xl border border-gray-700/50 flex items-center shadow-inner">
+                                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-gray-700 to-gray-900 flex items-center justify-center mr-3 border border-gray-600">
+                                    <i data-lucide="user" className="w-5 h-5 text-gray-300"></i>
+                                </div>
+                                <div>
+                                    <p className="text-[10px] text-gray-500 uppercase tracking-widest font-bold mb-0.5">Perfil activo</p>
+                                    <p className="text-xs font-bold text-white leading-tight">Coord. Gráfica<br/>Multimedia</p>
+                                </div>
+                            </div>
+                        </div>
+                        <nav className="flex-1 overflow-y-auto py-4 relative z-10 scrollbar-hide">
+                            {menuGroups.map((group, gIdx) => (
+                                <div key={gIdx} className="mb-6">
+                                    <h3 className="px-6 py-2 text-[10px] font-black text-gray-500 uppercase tracking-[0.15em] mb-1">
+                                        {group.title}
+                                    </h3>
+                                    {group.items.map(item => (
+                                        <button
+                                            key={item.id}
+                                            onClick={() => setActiveTab(item.id)}
+                                            className={`w-full flex items-center px-6 py-3 text-sm font-semibold transition-all duration-200 ${activeTab === item.id ? 'bg-gray-800/80 text-white shadow-md' : 'text-gray-400 hover:bg-gray-900/50 hover:text-gray-200'}`}
+                                            style={activeTab === item.id ? {borderLeft: '4px solid var(--uniacc-orange)'} : {borderLeft: '4px solid transparent'}}
+                                        >
+                                            <i data-lucide={item.icon} className={`w-4 h-4 mr-4 transition-colors ${activeTab === item.id ? 'text-uniacc-orange' : 'text-gray-600'}`}></i>
+                                            {item.label}
+                                        </button>
+                                    ))}
+                                </div>
+                            ))}
+                        </nav>
+                    </div>
+                    <div className="flex-1 overflow-y-auto bg-gray-50 relative" id="main-content">
+                        <div className="max-w-5xl mx-auto p-6 md:p-10 fade-in" key={activeTab}>
+                            {renderContent()}
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // --- SECTION CONTENT COMPONENTS ---
+
+        const Contexto = () => (
+            <div className="space-y-6">
+                <TitleHeader title="1. Contexto y mensajes clave" docSource="VRACAI_MensajesClaveAcreditacion2026.pdf y VRACAI_PresentacionAcreditacion.pdf" icon="flag" />
+                
+                <div className="hero-pattern rounded-3xl p-10 mb-8 shadow-xl text-white flex flex-col justify-center relative overflow-hidden">
+                    <div className="relative z-10 max-w-2xl">
+                        <div className="inline-flex items-center px-3 py-1 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-xs font-bold mb-4 uppercase tracking-wider">
+                            <i data-lucide="award" className="w-4 h-4 mr-2"></i> Lema Institucional
+                        </div>
+                        <h3 className="text-3xl md:text-5xl font-black mb-4 leading-tight">"Construyendo calidad,<br/><span className="text-uniacc-orange">contamos contigo</span>."</h3>
+                        <p className="text-gray-300 font-medium text-lg">La acreditación no es tarea de un área, es dar "fe pública" de que hacemos lo que decimos.</p>
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                    <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                        <h3 className="font-black text-xl mb-5 flex items-center text-gray-900 border-b border-gray-100 pb-3">
+                            <div className="bg-blue-50 p-2 rounded-lg mr-3"><i data-lucide="calendar" className="w-5 h-5 text-uniacc-blue"></i></div>
+                            Acreditación vigente
+                        </h3>
+                        <div className="flex items-center justify-between bg-gray-50 p-4 rounded-xl border border-gray-200 mb-3">
+                            <span className="font-bold text-gray-600">Nivel Obtenido (2023)</span>
+                            <span className="bg-gray-800 text-white px-3 py-1 rounded-full text-xs font-bold">BÁSICO</span>
+                        </div>
+                        <p className="text-sm text-gray-600 leading-relaxed">Otorgada por 3 años (hasta agosto 2026). Prorrogada por ley hasta la resolución final de la CNA.</p>
+                    </div>
+
+                    <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                        <h3 className="font-black text-xl mb-5 flex items-center text-gray-900 border-b border-gray-100 pb-3">
+                            <div className="bg-green-50 p-2 rounded-lg mr-3"><i data-lucide="layers" className="w-5 h-5 text-green-500"></i></div>
+                            Dimensiones 2026
+                        </h3>
+                        <ul className="space-y-3 text-sm text-gray-700 font-medium">
+                            <li className="flex items-center"><i data-lucide="check" className="w-5 h-5 text-green-500 mr-3"></i> Docencia y resultados formativos</li>
+                            <li className="flex items-center"><i data-lucide="check" className="w-5 h-5 text-green-500 mr-3"></i> Gestión estratégica y recursos</li>
+                            <li className="flex items-center"><i data-lucide="check" className="w-5 h-5 text-green-500 mr-3"></i> Aseguramiento de la calidad</li>
+                            <li className="flex items-center"><i data-lucide="check" className="w-5 h-5 text-green-500 mr-3"></i> Vinculación con el medio</li>
+                        </ul>
+                        <div className="mt-4 p-3 bg-red-50 rounded-lg border border-red-100 flex items-center text-red-700 text-xs font-bold">
+                            <i data-lucide="x-circle" className="w-4 h-4 mr-2"></i> No nos presentamos a Investigación.
+                        </div>
+                    </div>
+                </div>
+
+                <h3 className="font-black text-2xl text-gray-900 mb-6 text-center">Los 3 Instrumentos Orientadores</h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+                    <div className="bg-white border border-gray-200 p-8 rounded-2xl text-center hover:border-uniacc-blue transition-colors shadow-sm group">
+                        <div className="w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-4 bg-gray-50 group-hover:bg-blue-50 transition-colors">
+                            <i data-lucide="book-open" className="w-8 h-8 text-uniacc-blue"></i>
+                        </div>
+                        <h4 className="font-black mb-2 text-lg text-gray-900">Modelo Educativo</h4>
+                        <p className="text-sm text-gray-600">Promueve el sello humanista para el siglo XXI y lineamientos pedagógicos transversales.</p>
+                    </div>
+                    <div className="bg-white border border-gray-200 p-8 rounded-2xl text-center hover:border-uniacc-orange transition-colors shadow-sm group">
+                        <div className="w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-4 bg-gray-50 group-hover:bg-orange-50 transition-colors">
+                            <i data-lucide="target" className="w-8 h-8 text-uniacc-orange"></i>
+                        </div>
+                        <h4 className="font-black mb-2 text-lg text-gray-900">Plan Estratégico</h4>
+                        <p className="text-sm text-gray-600">Proyección 2026-2030 (PEI), articulado directamente con los planes de desarrollo de facultad.</p>
+                    </div>
+                    <div className="bg-white border border-gray-200 p-8 rounded-2xl text-center hover:border-uniacc-pink transition-colors shadow-sm group">
+                        <div className="w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-4 bg-gray-50 group-hover:bg-pink-50 transition-colors">
+                            <i data-lucide="scale" className="w-8 h-8 text-uniacc-pink"></i>
+                        </div>
+                        <h4 className="font-black mb-2 text-lg text-gray-900">Marco Normativo</h4>
+                        <p className="text-sm text-gray-600">Estatutos y reglamentos que aseguran la formalidad de nuestros procesos operacionales.</p>
+                    </div>
+                </div>
+
+                <div className="bg-red-50 border-2 border-red-200 p-8 rounded-2xl mb-8 shadow-sm">
+                    <div className="flex flex-col md:flex-row gap-6 items-center">
+                        <div className="w-20 h-20 rounded-full bg-white shadow-md flex items-center justify-center flex-shrink-0">
+                            <i data-lucide="megaphone-off" className="w-10 h-10 text-red-500"></i>
+                        </div>
+                        <div className="flex-1">
+                            <h3 className="font-black text-red-800 text-xl mb-4 uppercase tracking-wider">Lo que NO debes hacer al comunicar</h3>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div className="flex items-start bg-white p-4 rounded-xl shadow-sm border border-red-100">
+                                    <i data-lucide="x" className="w-5 h-5 mr-3 flex-shrink-0 text-red-500 mt-0.5"></i>
+                                    <span className="text-sm text-gray-700"><strong>No prometer resultados:</strong> No anticipes años de acreditación ni decisiones de la CNA.</span>
+                                </div>
+                                <div className="flex items-start bg-white p-4 rounded-xl shadow-sm border border-red-100">
+                                    <i data-lucide="x" className="w-5 h-5 mr-3 flex-shrink-0 text-red-500 mt-0.5"></i>
+                                    <span className="text-sm text-gray-700"><strong>No improvisar cifras:</strong> Usa solo datos del Informe de Autoevaluación.</span>
+                                </div>
+                                <div className="flex items-start bg-white p-4 rounded-xl shadow-sm border border-red-100">
+                                    <i data-lucide="x" className="w-5 h-5 mr-3 flex-shrink-0 text-red-500 mt-0.5"></i>
+                                    <span className="text-sm text-gray-700"><strong>No memorizar guiones ajenos:</strong> Responde desde el conocimiento real de tu rol.</span>
+                                </div>
+                                <div className="flex items-start bg-white p-4 rounded-xl shadow-sm border border-red-100">
+                                    <i data-lucide="x" className="w-5 h-5 mr-3 flex-shrink-0 text-red-500 mt-0.5"></i>
+                                    <span className="text-sm text-gray-700"><strong>Evita el triunfalismo ciego:</strong> Mantén un lenguaje sobrio y basado en evidencias.</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <RoleAlert title="Tus guiones para la visita">
+                    <div className="space-y-4">
+                        <div className="bg-gray-50 p-5 rounded-xl border border-gray-200">
+                            <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 flex items-center"><i data-lucide="quote" className="w-3 h-3 mr-2"></i> Para abrir una respuesta sobre calidad</p>
+                            <p className="text-base text-gray-800 font-medium italic">"La acreditación evalúa cómo aseguramos la calidad y la mejora continua. En mi área gráfica, no es solo estética, se expresa en cómo planificamos con el modelo ASSURE y aplicamos controles de calidad QA2 a los recursos."</p>
+                        </div>
+                        <div className="bg-gray-50 p-5 rounded-xl border border-gray-200">
+                            <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 flex items-center"><i data-lucide="quote" className="w-3 h-3 mr-2"></i> Para cerrar tu intervención</p>
+                            <p className="text-base text-gray-800 font-medium italic">"Como dice nuestro lema, <em>Construyendo calidad, contamos contigo</em>, esto expresa una responsabilidad compartida donde mi rol tecnológico-visual impacta directamente en el aprendizaje del alumno."</p>
+                        </div>
+                    </div>
+                </RoleAlert>
+            </div>
+        );
+
+        // --- ORIENTACIONES CNA ---
+        const OrientacionesCNA = () => (
+            <div className="space-y-6">
+                <TitleHeader title="2. Orientaciones CNA para modalidad virtual" docSource="CNA_OrientacionesSemiOnline.pdf" icon="file-text" />
+
+                <div className="bg-gray-900 text-white p-8 rounded-3xl mb-10 shadow-xl flex flex-col md:flex-row items-center relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 w-64 h-64 transform translate-x-16 -translate-y-16 rounded-full opacity-20 group-hover:scale-110 transition-transform duration-700 blur-2xl" style={{backgroundColor: 'var(--uniacc-orange)'}}></div>
+                    <div className="w-24 h-24 rounded-2xl bg-black/50 flex items-center justify-center mr-8 mb-6 md:mb-0 flex-shrink-0 border border-gray-700 relative z-10 backdrop-blur-md">
+                        <i data-lucide="compass" className="w-12 h-12 text-uniacc-orange"></i>
+                    </div>
+                    <div className="relative z-10">
+                        <h3 className="font-black text-2xl mb-3 text-uniacc-orange uppercase tracking-wide">Naturaleza del documento</h3>
+                        <p className="text-base leading-relaxed text-gray-300">Publicado en octubre de 2026 y aplicable a partir de <strong>octubre de 2027</strong>. El documento tiene un carácter estrictamente <strong className="text-white bg-black px-3 py-1 rounded-md border border-gray-700 shadow-sm">orientador y no prescriptivo</strong>.</p>
+                        <p className="text-sm mt-3 text-gray-400">Esto significa que <em>no crea nuevos criterios ni estándares adicionales</em>, sino que apoya la interpretación para demostrar el cumplimiento de los criterios vigentes en estas modalidades.</p>
+                    </div>
+                </div>
+
+                <div className="bg-white p-10 rounded-3xl shadow-sm border border-gray-200 mb-10 overflow-hidden relative">
+                    <div className="absolute -right-20 -top-20 opacity-5">
+                        <i data-lucide="scale" className="w-96 h-96 text-uniacc-blue"></i>
+                    </div>
+                    <h3 className="font-black text-3xl mb-8 text-center text-gray-900 relative z-10">El principio central:<br/><span className="text-uniacc-blue">Equivalencia académica</span></h3>
+                    <div className="max-w-3xl mx-auto space-y-6 relative z-10">
+                        <p className="text-lg text-gray-700 text-center font-medium leading-relaxed">
+                            Para la CNA, la calidad de la formación a distancia <strong className="text-uniacc-pink">NO depende exclusivamente de la infraestructura tecnológica</strong>. Proveer conectividad o dispositivos es una <em>condición necesaria, pero no suficiente</em>.
+                        </p>
+                        
+                        <div className="bg-blue-50 p-6 rounded-2xl border border-blue-100 text-center shadow-inner">
+                            <p className="font-black mb-2 text-gray-900 uppercase tracking-widest text-sm">¿Cómo se demuestra la equivalencia?</p>
+                            <p className="text-base text-gray-800">Principalmente mediante el logro de los mismos <strong>resultados de aprendizaje, progresión, titulación y empleabilidad</strong> que la modalidad presencial.</p>
+                        </div>
+                        
+                        <div className="flex items-center justify-center p-6 rounded-2xl border-l-8 border-uniacc-orange bg-white shadow-md">
+                            <i data-lucide="alert-circle" className="w-10 h-10 mr-4 text-uniacc-orange flex-shrink-0"></i>
+                            <p className="text-lg font-bold italic text-gray-800">
+                                "Garantizar la equivalencia NO implica reproducir (ni copiar) los mismos medios, formatos o experiencias de la presencialidad al mundo virtual".
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <h3 className="font-black text-2xl text-gray-900 mb-6 text-center">Dimensiones evaluadas vs excluidas</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
+                    <div className="bg-white border border-gray-200 p-8 rounded-3xl shadow-sm hover:shadow-lg transition-shadow border-t-8 border-t-green-500">
+                        <h4 className="font-black text-xl mb-6 flex items-center text-gray-900">
+                            <div className="bg-green-100 p-2 rounded-full mr-3"><i data-lucide="check" className="w-6 h-6 text-green-600"></i></div>
+                            Sí abordadas
+                        </h4>
+                        <ul className="text-base text-gray-700 space-y-4 font-medium">
+                            <li className="flex items-center bg-gray-50 p-3 rounded-lg"><div className="w-2.5 h-2.5 rounded-full bg-green-500 mr-4"></div> Docencia y resultados formativos.</li>
+                            <li className="flex items-center bg-gray-50 p-3 rounded-lg"><div className="w-2.5 h-2.5 rounded-full bg-green-500 mr-4"></div> Gestión estratégica y recursos.</li>
+                            <li className="flex items-center bg-gray-50 p-3 rounded-lg"><div className="w-2.5 h-2.5 rounded-full bg-green-500 mr-4"></div> Aseguramiento interno de calidad.</li>
+                        </ul>
+                    </div>
+                    <div className="bg-white border border-gray-200 p-8 rounded-3xl shadow-sm hover:shadow-lg transition-shadow border-t-8 border-t-red-500">
+                        <h4 className="font-black text-xl mb-6 flex items-center text-gray-900">
+                            <div className="bg-red-100 p-2 rounded-full mr-3"><i data-lucide="x" className="w-6 h-6 text-red-600"></i></div>
+                            Excluidas
+                        </h4>
+                        <ul className="text-base text-gray-700 space-y-4 font-medium mb-6">
+                            <li className="flex items-center bg-gray-50 p-3 rounded-lg opacity-60"><div className="w-2.5 h-2.5 rounded-full bg-red-500 mr-4"></div> Vinculación con el medio.</li>
+                            <li className="flex items-center bg-gray-50 p-3 rounded-lg opacity-60"><div className="w-2.5 h-2.5 rounded-full bg-red-500 mr-4"></div> Investigación, creación e innovación.</li>
+                        </ul>
+                        <div className="bg-red-50 p-4 rounded-xl border border-red-100 flex items-start">
+                            <i data-lucide="info" className="w-5 h-5 mr-3 text-red-500 flex-shrink-0 mt-0.5"></i>
+                            <p className="text-xs text-red-800 leading-relaxed">
+                                <strong>Razón metodológica:</strong> La literatura internacional aún no presenta consenso para medirlas transversalmente en virtualidad.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="bg-white p-10 rounded-3xl shadow-sm border border-gray-200 mb-8">
+                    <h3 className="font-black text-2xl mb-8 text-center text-gray-900 flex items-center justify-center">
+                        <i data-lucide="search" className="w-8 h-8 mr-3 text-gray-400"></i> Evidencias críticas esperadas por la CNA
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="p-6 rounded-2xl border border-gray-100 bg-gray-50 hover:bg-white hover:border-uniacc-blue hover:shadow-lg transition-all group flex flex-col h-full">
+                            <div className="w-14 h-14 rounded-full bg-white shadow-sm flex items-center justify-center mb-4 border border-gray-100 group-hover:border-uniacc-blue transition-colors">
+                                <i data-lucide="shield" className="w-7 h-7 text-uniacc-blue"></i>
+                            </div>
+                            <h4 className="font-bold text-lg mb-2 text-gray-900">Evaluación e integridad</h4>
+                            <p className="text-sm text-gray-600 leading-relaxed flex-grow">Políticas sobre integridad académica que aborden fraude, antiplagio, suplantación y ética en entornos virtuales (ej. uso de StrikePlagiarism).</p>
+                        </div>
+                        <div className="p-6 rounded-2xl border border-gray-100 bg-gray-50 hover:bg-white hover:border-uniacc-orange hover:shadow-lg transition-all group flex flex-col h-full">
+                            <div className="w-14 h-14 rounded-full bg-white shadow-sm flex items-center justify-center mb-4 border border-gray-100 group-hover:border-uniacc-orange transition-colors">
+                                <i data-lucide="users" className="w-7 h-7 text-uniacc-orange"></i>
+                            </div>
+                            <h4 className="font-bold text-lg mb-2 text-gray-900">Competencias digitales</h4>
+                            <p className="text-sm text-gray-600 leading-relaxed flex-grow">Perfiles y estándares de competencias explícitas para todo el personal académico, administrativo y técnico (modelo TPACK).</p>
+                        </div>
+                        <div className="p-6 rounded-2xl border border-gray-100 bg-gray-50 hover:bg-white hover:border-uniacc-pink hover:shadow-lg transition-all group flex flex-col h-full">
+                            <div className="w-14 h-14 rounded-full bg-white shadow-sm flex items-center justify-center mb-4 border border-gray-100 group-hover:border-uniacc-pink transition-colors">
+                                <i data-lucide="server" className="w-7 h-7 text-uniacc-pink"></i>
+                            </div>
+                            <h4 className="font-bold text-lg mb-2 text-gray-900">Ecosistema digital</h4>
+                            <p className="text-sm text-gray-600 leading-relaxed flex-grow">Garantizar de forma verificable el acceso, disponibilidad, estabilidad, usabilidad, seguridad y continuidad del servicio LMS (e-campus).</p>
+                        </div>
+                        <div className="p-6 rounded-2xl border border-gray-100 bg-gray-50 hover:bg-white hover:border-gray-800 hover:shadow-lg transition-all group flex flex-col h-full">
+                            <div className="w-14 h-14 rounded-full bg-white shadow-sm flex items-center justify-center mb-4 border border-gray-100 group-hover:border-gray-800 transition-colors">
+                                <i data-lucide="settings" className="w-7 h-7 text-gray-800"></i>
+                            </div>
+                            <h4 className="font-bold text-lg mb-2 text-gray-900">Gobernanza de datos</h4>
+                            <p className="text-sm text-gray-600 leading-relaxed flex-grow">Sistemas de información que respalden el diseño curricular y las alertas tempranas predictivas (como la plataforma NIMBI).</p>
+                        </div>
+                    </div>
+                </div>
+
+                <RoleAlert title="Tu rol validando la 'equivalencia' y la 'integridad'">
+                    <div className="space-y-5 mt-4">
+                        <div className="bg-white p-6 rounded-xl border border-pink-100 shadow-sm relative overflow-hidden">
+                            <div className="absolute left-0 top-0 bottom-0 w-2 bg-uniacc-blue"></div>
+                            <h5 className="font-black text-base mb-2 flex items-center text-gray-900 ml-4"><i data-lucide="monitor" className="w-5 h-5 mr-3 text-uniacc-blue"></i> 1. Diseño propio (Equivalencia)</h5>
+                            <p className="text-sm text-gray-700 ml-12 leading-relaxed">Cuando la CNA advierte que "equivalencia no es reproducir lo presencial", tu trabajo es la prueba viviente. Al aplicar el modelo TPACK para diseñar recursos interactivos exclusivos para el e-campus (que no existen en el aula física), demuestras que UNIACC tiene una didáctica tecnopedagógica propia.</p>
+                        </div>
+                        <div className="bg-white p-6 rounded-xl border border-pink-100 shadow-sm relative overflow-hidden">
+                            <div className="absolute left-0 top-0 bottom-0 w-2 bg-uniacc-pink"></div>
+                            <h5 className="font-black text-base mb-2 flex items-center text-gray-900 ml-4"><i data-lucide="shield-check" className="w-5 h-5 mr-3 text-uniacc-pink"></i> 2. Prevención del fraude (Integridad)</h5>
+                            <p className="text-sm text-gray-700 ml-12 leading-relaxed">Los evaluadores preguntarán por las suplantaciones. Tu área ayuda a mitigar esto diseñando entornos para <strong className="bg-pink-50 px-2 py-0.5 rounded text-pink-900">evaluaciones auténticas</strong> (estudios de caso interactivos, simulaciones, portafolios digitales que exigen creación propia), alejando la evaluación del frágil cuestionario de opción múltiple.</p>
+                        </div>
+                    </div>
+                </RoleAlert>
+            </div>
+        );
+
+        // --- SELLO HUMANISTA S.XXI ---
+        const Sello = () => (
+            <div className="space-y-6">
+                <TitleHeader title="3. Sello humanista para el siglo XXI" docSource="UNIACC_HumanismoSXXI 1.pdf, MapaMental y Presentación" icon="heart" />
+
+                <div className="hero-pattern-sello rounded-3xl p-10 mb-8 shadow-xl text-white flex flex-col md:flex-row items-center justify-between gap-10">
+                    <div className="relative w-48 h-48 rounded-full border-4 border-white/20 flex flex-col items-center justify-center bg-black/40 backdrop-blur-md shadow-2xl flex-shrink-0">
+                        <i data-lucide="user" className="w-20 h-20 text-white mb-2"></i>
+                        <span className="font-bold text-xs uppercase tracking-widest text-uniacc-orange">El centro</span>
+                        
+                        {/* Orbiting elements */}
+                        <div className="absolute inset-0 animate-[spin_10s_linear_infinite]">
+                            <div className="absolute top-0 left-1/2 w-4 h-4 bg-uniacc-blue rounded-full transform -translate-x-1/2 -translate-y-1/2 shadow-[0_0_10px_#3E8CBF]"></div>
+                        </div>
+                        <div className="absolute inset-0 animate-[spin_15s_linear_infinite_reverse]">
+                            <div className="absolute bottom-0 right-4 w-3 h-3 bg-uniacc-pink rounded-full shadow-[0_0_10px_#E6007E]"></div>
+                        </div>
+                    </div>
+                    <div className="flex-1 text-center md:text-left">
+                        <h3 className="text-3xl font-black mb-4 leading-tight">La persona frente a la <span className="text-uniacc-blue">aceleración tecnológica</span></h3>
+                        <p className="text-base text-gray-300 leading-relaxed mb-6 font-medium">
+                            Frente al riesgo de deshumanización por la Inteligencia Artificial, UNIACC busca recuperar una orientación ética. Reconocemos la dignidad, conciencia y dimensión espiritual de cada persona.
+                        </p>
+                        <div className="inline-block bg-black/60 border border-red-500/30 p-4 rounded-xl backdrop-blur-sm text-left">
+                            <p className="text-xs font-bold text-red-400 uppercase tracking-wider mb-2 flex items-center"><i data-lucide="alert-circle" className="w-4 h-4 mr-2"></i> Lo que NO es el sello:</p>
+                            <p className="text-sm text-gray-300 leading-relaxed">No es una doctrina confesional, ideológica ni ecología radical. Tampoco está restringido a disciplinas humanistas.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="bg-white p-10 rounded-3xl shadow-sm border border-gray-200 mb-10 text-center">
+                    <h3 className="font-black text-2xl mb-8 text-gray-900">Los 5 atributos del modelo educativo 2025</h3>
+                    <div className="grid grid-cols-2 md:grid-cols-5 gap-6">
+                        {[
+                            { icon: 'shield', t: 'Integridad', s: 'en el actuar', color: 'var(--uniacc-blue)' },
+                            { icon: 'brain', t: 'Pensamiento', s: 'crítico', color: 'var(--uniacc-pink)' },
+                            { icon: 'lightbulb', t: 'Creatividad', s: 'e innovación', color: 'var(--uniacc-orange)' },
+                            { icon: 'message-circle', t: 'Comunicación', s: 'significativa', color: 'var(--uniacc-grey)' },
+                            { icon: 'network', t: 'Valoración', s: 'interdisciplinaria', color: 'var(--uniacc-black)' }
+                        ].map((a, i) => (
+                            <div key={i} className="flex flex-col items-center p-6 border border-gray-100 rounded-2xl hover:shadow-xl transition-all hover:-translate-y-2 bg-white relative overflow-hidden group cursor-default">
+                                <div className="absolute top-0 left-0 w-full h-1.5 opacity-0 group-hover:opacity-100 transition-opacity" style={{backgroundColor: a.color}}></div>
+                                <div className="w-16 h-16 rounded-full mb-4 bg-gray-50 flex items-center justify-center group-hover:scale-110 transition-transform shadow-inner">
+                                    <i data-lucide={a.icon} className="w-8 h-8" style={{color: a.color}}></i>
+                                </div>
+                                <span className="text-base font-black text-center leading-tight mb-1 text-gray-900">{a.t}</span>
+                                <span className="text-xs text-gray-500 text-center font-medium uppercase tracking-wider">{a.s}</span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                <div className="bg-gray-900 text-white p-8 md:p-12 rounded-3xl shadow-xl text-center relative overflow-hidden mb-10">
+                    <div className="absolute inset-0 opacity-10 flex items-center justify-center pointer-events-none">
+                        <i data-lucide="quote" className="w-64 h-64 text-uniacc-orange"></i>
+                    </div>
+                    <p className="text-xs text-gray-400 uppercase tracking-[0.2em] font-bold mb-4 relative z-10">La bajada institucional en una frase</p>
+                    <p className="text-2xl md:text-4xl font-black leading-tight relative z-10 max-w-4xl mx-auto">
+                        "Integrar humanismo, tecnología e innovación con <span className="text-transparent bg-clip-text bg-gradient-to-r from-uniacc-orange to-uniacc-pink">discernimiento, responsabilidad y sentido</span>."
+                    </p>
+                </div>
+
+                <h3 className="font-black text-2xl text-gray-900 mb-6 text-center">El traspaso a la práctica (el "cómo")</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                    <div className="bg-white border border-gray-200 p-8 rounded-3xl shadow-sm relative overflow-hidden hover:shadow-lg transition-shadow">
+                        <div className="absolute top-0 right-0 w-3 h-full bg-uniacc-blue"></div>
+                        <h4 className="font-black text-xl mb-6 flex items-center text-gray-900">
+                            <div className="p-3 rounded-xl bg-blue-50 mr-4 border border-blue-100 shadow-inner">
+                                <i data-lucide="book" className="w-6 h-6 text-uniacc-blue"></i>
+                            </div>
+                            Vía curricular
+                        </h4>
+                        <p className="text-sm text-gray-600 mb-5 font-medium leading-relaxed">Desde la cohorte 2026, todos los estudiantes (pregrado regular y Advance) cursan dos asignaturas sello obligatorias:</p>
+                        <ul className="space-y-4 mb-6">
+                            <li className="flex items-center text-base font-bold bg-gray-50 p-4 rounded-xl border border-gray-100 text-gray-900 shadow-sm">
+                                <i data-lucide="user-check" className="w-5 h-5 mr-4 text-uniacc-blue"></i> Ser Humano, Hoy <span className="text-xs text-gray-500 font-normal ml-auto italic">Antropología filosófica</span>
+                            </li>
+                            <li className="flex items-center text-base font-bold bg-gray-50 p-4 rounded-xl border border-gray-100 text-gray-900 shadow-sm">
+                                <i data-lucide="scale" className="w-5 h-5 mr-4 text-uniacc-blue"></i> Ética, Hoy <span className="text-xs text-gray-500 font-normal ml-auto italic">Reflexión ética</span>
+                            </li>
+                        </ul>
+                        <p className="text-xs text-gray-500 font-medium bg-gray-50 p-3 rounded-lg border border-gray-100 text-center">
+                            Además cursan 3 a 4 electivos de formación general para evitar la fragmentación del conocimiento.
+                        </p>
+                    </div>
+                    
+                    <div className="bg-white border border-gray-200 p-8 rounded-3xl shadow-sm relative overflow-hidden hover:shadow-lg transition-shadow">
+                        <div className="absolute top-0 right-0 w-3 h-full bg-uniacc-pink"></div>
+                        <h4 className="font-black text-xl mb-6 flex items-center text-gray-900">
+                            <div className="p-3 rounded-xl bg-pink-50 mr-4 border border-pink-100 shadow-inner">
+                                <i data-lucide="users" className="w-6 h-6 text-uniacc-pink"></i>
+                            </div>
+                            Gobernanza y cultura
+                        </h4>
+                        <p className="text-sm text-gray-600 mb-5 font-medium leading-relaxed">Existen dos órganos distintos para su implementación institucional:</p>
+                        <div className="space-y-4">
+                            <div className="bg-gray-50 p-5 rounded-xl border border-gray-100 shadow-sm">
+                                <strong className="flex items-center text-gray-900 mb-2 text-base"><i data-lucide="briefcase" className="w-5 h-5 mr-3 text-uniacc-pink"></i> Consejo de Humanismo:</strong> 
+                                <span className="text-sm text-gray-600 ml-8 block leading-relaxed">Presidido por el Rector. Orquesta estratégicamente la divulgación y cultura a nivel general (ej: programa Trabajo Bien Hecho).</span>
+                            </div>
+                            <div className="bg-gray-50 p-5 rounded-xl border border-gray-100 shadow-sm">
+                                <strong className="flex items-center text-gray-900 mb-2 text-base"><i data-lucide="graduation-cap" className="w-5 h-5 mr-3 text-uniacc-pink"></i> Comité de Formación General:</strong> 
+                                <span className="text-sm text-gray-600 ml-8 block leading-relaxed">Órgano académico. Apoya la creación específica de cursos y mallas de electivos.</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <RoleAlert title='El nuevo sentido de "Bienvenidos a crear"'>
+                    <p className="mb-3">Frente a los pares, explica que en producción multimedia el lema <em>"Bienvenidos a crear"</em> ha adquirido una profundidad ética. No creas recursos interactivos por simple moda o vanguardia.</p>
+                    <p>El humanismo nos exige diseñar entendiendo <strong className="text-uniacc-pink font-black px-1">por qué, para qué y a quiénes impacta</strong> esa tecnología. Por ello aplicas pautas <strong>DUA (inclusión)</strong> y diseñas piezas que exigen al estudiante usar el <strong>"pensamiento crítico"</strong> y tomar decisiones responsables.</p>
+                </RoleAlert>
+            </div>
+        );
+
+        // --- INVESTIGACION DIP ---
+        const Investigacion = () => (
+            <div className="space-y-6">
+                <TitleHeader title="4. Investigación e innovación docente" docSource="DIP_EstructuraInformeAcreditacion.pdf" icon="microscope" />
+                
+                <div className="bg-white border border-gray-200 p-6 rounded-2xl mb-10 shadow-sm flex items-start border-l-8 border-l-gray-400">
+                    <i data-lucide="info" className="w-8 h-8 mr-4 flex-shrink-0 mt-0.5 text-gray-400"></i>
+                    <p className="text-sm md:text-base text-gray-700 leading-relaxed font-medium"><strong>Nota de alcance:</strong> UNIACC <strong>no se presenta</strong> a la dimensión optativa de Investigación, Creación e Innovación en este proceso. Sin embargo, la investigación aplicada a la <em>docencia</em> (innovación pedagógica) es evaluada transversalmente para evidenciar la calidad y mejora continua institucional.</p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
+                    <div className="bg-white p-8 rounded-3xl border border-gray-200 shadow-sm hover:shadow-lg transition-shadow group">
+                        <div className="flex items-center justify-between mb-6">
+                            <h3 className="font-black text-2xl text-gray-900">Evolución y gobernanza</h3>
+                            <div className="p-3 bg-blue-50 rounded-xl border border-blue-100 shadow-inner group-hover:bg-blue-100 transition-colors">
+                                <i data-lucide="git-branch" className="w-7 h-7 text-uniacc-blue"></i>
+                            </div>
+                        </div>
+                        <div className="space-y-5">
+                            <p className="text-sm text-gray-700 bg-gray-50 p-5 rounded-xl border border-gray-100 relative leading-relaxed">
+                                <span className="absolute -left-1.5 top-5 bottom-5 w-3 bg-gray-300 rounded-full shadow-sm"></span>
+                                La Dirección de Investigación y Postgrado (DIP) fue creada en 2020. En un paso estratégico clave, <strong>en octubre de 2024 fue trasladada a la Vicerrectoría Académica</strong> para lograr una integración sistémica con las facultades y la innovación pedagógica (junto a la DDIE).
+                            </p>
+                            <p className="text-sm text-blue-900 bg-blue-50 p-5 rounded-xl border border-blue-200 shadow-inner leading-relaxed font-medium">
+                                <strong className="text-uniacc-blue block mb-1">Fomento ininterrumpido:</strong> A través del "Concurso anual para el fomento de la investigación" (desde 2016), el <strong>33% de los projects adjudicados históricamente</strong> corresponden al eje de "Investigación en educación y mejora continua de la docencia".
+                            </p>
+                        </div>
+                    </div>
+                    <div className="bg-white p-8 rounded-3xl border border-gray-200 shadow-sm hover:shadow-lg transition-shadow group">
+                        <div className="flex items-center justify-between mb-6">
+                            <h3 className="font-black text-2xl text-gray-900">Medición cualitativa</h3>
+                            <div className="p-3 bg-pink-50 rounded-xl border border-pink-100 shadow-inner group-hover:bg-pink-100 transition-colors">
+                                <i data-lucide="pie-chart" className="w-7 h-7 text-uniacc-pink"></i>
+                            </div>
+                        </div>
+                        <div className="space-y-5 flex flex-col h-full">
+                            <div className="flex items-center justify-center py-4 bg-gray-50 rounded-xl border border-gray-100">
+                                <div className="text-center">
+                                    <span className="text-4xl font-black tracking-widest text-gray-900 block mb-1">QuIP</span>
+                                    <span className="text-xs font-bold text-gray-500 uppercase tracking-widest">Qualitative Impact Protocol</span>
+                                </div>
+                            </div>
+                            <p className="text-sm text-gray-700 leading-relaxed font-medium mt-auto">
+                                Para evaluar el impacto real de los fondos adjudicados en el aula, no solo se cuentan papers. Esta metodología recoge <strong>"historias de cambio"</strong> para medir cómo los proyectos inciden en el compromiso estudiantil y uso de tecnologías.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="bg-white p-10 rounded-3xl shadow-sm border border-gray-200 mb-10">
+                    <h3 className="font-black text-2xl mb-8 text-center text-gray-900">Matriz de proyección estratégica (2026-2029)</h3>
+                    
+                    <div className="bg-red-50 border border-red-200 p-8 rounded-2xl mb-8 relative overflow-hidden shadow-inner">
+                        <div className="absolute right-0 top-0 h-full w-48 bg-red-100 opacity-50 transform -skew-x-12 translate-x-20"></div>
+                        <h4 className="font-black text-red-900 mb-4 flex items-center text-xl relative z-10"><i data-lucide="alert-triangle" className="w-6 h-6 mr-3 text-red-500"></i> Debilidades reconocidas por la institución</h4>
+                        <ul className="list-disc pl-6 text-base text-red-800 space-y-3 relative z-10 font-medium">
+                            <li>Escasa integración sistémica de la investigación con la docencia de pregrado y postgrado (esfuerzos fragmentados).</li>
+                            <li>Financiamiento para proyectos en docencia significativamente menor que en investigación disciplinar.</li>
+                            <li><strong className="bg-white px-2 py-1 rounded shadow-sm border border-red-100 text-red-900">Deficiencias en la difusión interna</strong> de las buenas prácticas y hallazgos hacia el resto del cuerpo académico.</li>
+                        </ul>
+                    </div>
+                    
+                    <div className="overflow-x-auto rounded-2xl border border-gray-200 shadow-sm">
+                        <table className="min-w-full bg-white text-sm text-left">
+                            <thead className="bg-gray-900 text-white">
+                                <tr>
+                                    <th className="py-5 px-6 font-black uppercase tracking-wider text-xs w-1/2">Compromisos de mejora (PMI)</th>
+                                    <th className="py-5 px-6 font-black uppercase tracking-wider text-xs text-center border-l border-gray-700 w-1/4">Meta / Indicador</th>
+                                    <th className="py-5 px-6 font-black uppercase tracking-wider text-xs text-center border-l border-gray-700 w-1/4">Plazo</th>
+                                </tr>
+                            </thead>
+                            <tbody className="text-gray-700 divide-y divide-gray-100 font-medium">
+                                <tr className="hover:bg-gray-50 transition-colors">
+                                    <td className="py-5 px-6">Diseñar e implementar un <strong>modelo curricular innovador</strong> que integre docencia e investigación.</td>
+                                    <td className="py-5 px-6 text-center border-l border-gray-100">
+                                        <span className="inline-flex items-center px-4 py-1.5 rounded-full text-xs font-bold bg-green-100 text-green-800 border border-green-200 shadow-sm">
+                                            <i data-lucide="check-circle" className="w-3 h-3 mr-1.5"></i> 1 modelo aprobado
+                                        </span>
+                                    </td>
+                                    <td className="py-5 px-6 text-center font-black text-gray-500 border-l border-gray-100 bg-gray-50/50">2026</td>
+                                </tr>
+                                <tr className="hover:bg-gray-50 transition-colors">
+                                    <td className="py-5 px-6">Aumentar el fondo exclusivo para proyectos de investigación en docencia.</td>
+                                    <td className="py-5 px-6 text-center border-l border-gray-100">
+                                        <span className="inline-flex items-center px-4 py-1.5 rounded-full text-xs font-bold bg-blue-100 text-blue-800 border border-blue-200 shadow-sm">
+                                            <i data-lucide="trending-up" className="w-3 h-3 mr-1.5"></i> +25% anual
+                                        </span>
+                                    </td>
+                                    <td className="py-5 px-6 text-center font-black text-gray-500 border-l border-gray-100 bg-gray-50/50">Continuo</td>
+                                </tr>
+                                <tr className="hover:bg-gray-50 transition-colors">
+                                    <td className="py-5 px-6">Fortalecer el ecosistema de apoyo académico mediante contrataciones.</td>
+                                    <td className="py-5 px-6 text-center border-l border-gray-100">
+                                        <span className="inline-flex items-center px-4 py-1.5 rounded-full text-xs font-bold bg-purple-100 text-purple-800 border border-purple-200 shadow-sm">
+                                            <i data-lucide="user-plus" className="w-3 h-3 mr-1.5"></i> ≥2 Doctores/año
+                                        </span>
+                                    </td>
+                                    <td className="py-5 px-6 text-center font-black text-gray-500 border-l border-gray-100 bg-gray-50/50">2027-2029</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                    <div className="bg-white border border-gray-200 p-8 rounded-3xl shadow-sm flex items-start hover:shadow-lg transition-shadow">
+                        <div className="p-4 rounded-2xl bg-orange-50 mr-5 flex-shrink-0 border border-orange-100 shadow-inner">
+                            <i data-lucide="award" className="w-8 h-8 text-uniacc-orange"></i>
+                        </div>
+                        <div>
+                            <h4 className="font-black text-xl mb-2 text-gray-900">Hito: certificación OLC</h4>
+                            <p className="text-sm text-gray-600 leading-relaxed font-medium">
+                                Se logró la <strong>certificación internacional de "Introducción a la Psicología"</strong> (OLC). Este hito constituye el estándar (benchmark) para replicar la calidad en el resto de las mallas.
+                            </p>
+                        </div>
+                    </div>
+                    <div className="bg-white border border-gray-200 p-8 rounded-3xl shadow-sm flex items-start hover:shadow-lg transition-shadow">
+                        <div className="p-4 rounded-2xl bg-gray-100 mr-5 flex-shrink-0 border border-gray-200 shadow-inner">
+                            <i data-lucide="laptop" className="w-8 h-8 text-gray-700"></i>
+                        </div>
+                        <div>
+                            <h4 className="font-black text-xl mb-2 text-gray-900">Desafío: Advance y vespertino</h4>
+                            <p className="text-sm text-gray-600 leading-relaxed font-medium">
+                                Se requiere fortalecer la <strong>innovación metodológica en formatos intensivos</strong>, mejorando la apropiación pedagógica de plataformas y la interacción sincrónica.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <RoleAlert title="Tu conexión con el área de Investigación">
+                    <div className="space-y-5 mt-4">
+                        <div className="flex items-start bg-white p-4 rounded-xl shadow-sm border border-pink-100">
+                            <div className="w-8 h-8 rounded-full bg-pink-100 text-pink-700 flex items-center justify-center font-black text-sm mr-4 flex-shrink-0 border border-pink-200 shadow-sm">1</div>
+                            <p className="text-sm text-gray-700 leading-relaxed"><strong className="text-gray-900 block mb-1">Solucionas la deficiencia de difusión:</strong> Como la universidad reconoció que falla en difundir sus buenas prácticas, tu área multimedia es la respuesta. Diseñas <em>vodcasts</em>, infografías y portafolios digitales que visibilizan los hallazgos de los investigadores para el resto de la facultad.</p>
+                        </div>
+                        <div className="flex items-start bg-white p-4 rounded-xl shadow-sm border border-pink-100">
+                            <div className="w-8 h-8 rounded-full bg-pink-100 text-pink-700 flex items-center justify-center font-black text-sm mr-4 flex-shrink-0 border border-pink-200 shadow-sm">2</div>
+                            <p className="text-sm text-gray-700 leading-relaxed"><strong className="text-gray-900 block mb-1">Eres el sujeto de estudio:</strong> Los desarrollos tecnológicos que implementas en las aulas (animaciones, interfaces DUA) son precisamente el material que estos docentes-investigadores evalúan mediante el método QuIP para comprobar si mejoran el compromiso estudiantil.</p>
+                        </div>
+                    </div>
+                </RoleAlert>
+            </div>
+        );
+
+        // --- MI ROL COORD GRAFICO ---
+        const MiRol = () => (
+            <div className="space-y-6">
+                <TitleHeader title="5. Ficha de ayuda memoria: Mi rol" docSource="Resumen documentos acreditación (2).docx y ManualDTP.pdf" icon="user-check" />
+
+                <div className="bg-gray-900 text-white p-10 md:p-14 rounded-3xl mb-10 shadow-2xl relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 w-80 h-80 transform translate-x-20 -translate-y-20 rounded-full opacity-10 group-hover:scale-110 transition-transform duration-1000 blur-xl" style={{backgroundColor: 'var(--uniacc-orange)'}}></div>
+                    <div className="absolute bottom-0 left-0 w-64 h-64 transform -translate-x-20 translate-y-20 rounded-full opacity-10 blur-xl" style={{backgroundColor: 'var(--uniacc-pink)'}}></div>
+                    
+                    <div className="relative z-10 text-center max-w-4xl mx-auto">
+                        <div className="inline-flex items-center px-4 py-2 rounded-full bg-black border border-gray-700 shadow-inner text-xs font-black uppercase tracking-widest text-gray-300 mb-8">
+                            <i data-lucide="crosshair" className="w-4 h-4 mr-2 text-uniacc-orange"></i>
+                            Objetivo Principal de tu Cargo
+                        </div>
+                        <h3 className="text-3xl md:text-5xl font-black mb-8 leading-tight">
+                            Traducción pedagógica a <br/><span className="text-transparent bg-clip-text bg-gradient-to-r from-uniacc-orange to-uniacc-pink drop-shadow-sm">lenguaje visual y multimedial.</span>
+                        </h3>
+                        <p className="text-lg md:text-xl text-gray-300 mb-10 leading-relaxed font-medium">
+                            Tu función no es meramente estética, sino estratégica: traduces conceptos pedagógicos y contenidos disciplinares en experiencias visuales y audiovisuales alineadas estrictamente con los <strong className="text-white bg-black px-3 py-1 rounded shadow-sm border border-gray-700 whitespace-nowrap">resultados de aprendizaje (RA)</strong>.
+                        </p>
+                        <div className="bg-black/40 backdrop-blur-md p-6 rounded-2xl border border-gray-700/50 flex flex-col md:flex-row items-center justify-center text-left max-w-3xl mx-auto shadow-inner">
+                            <div className="p-4 rounded-xl bg-gray-800 mr-0 md:mr-6 mb-4 md:mb-0 flex-shrink-0 border border-gray-700 shadow-sm">
+                                <i data-lucide="users" className="w-8 h-8 text-uniacc-pink"></i>
+                            </div>
+                            <p className="text-sm md:text-base leading-relaxed text-gray-300">
+                                Trabajas en un <strong>flujo colaborativo e interdisciplinario</strong> (con la DAVDA, docentes constructores, gestores de proyecto y la DICYD) bajo un proceso formal de validación y cartas Gantt con plazos definidos.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <h3 className="font-black text-2xl mb-8 text-center text-gray-900 uppercase tracking-wide">Tu lenguaje y marco de trabajo</h3>
+                
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-10">
+                    <div className="bg-white border border-gray-200 rounded-3xl p-8 shadow-sm hover:shadow-lg transition-shadow">
+                        <div className="flex items-center mb-8 border-b border-gray-100 pb-4">
+                            <div className="p-3 rounded-xl bg-blue-50 mr-4 border border-blue-100 shadow-inner">
+                                <i data-lucide="layers" className="w-6 h-6 text-uniacc-blue"></i>
+                            </div>
+                            <h3 className="font-black text-xl text-gray-900">Modelos clave</h3>
+                        </div>
+                        <div className="space-y-4">
+                            <div className="flex items-center p-4 bg-gray-50 rounded-xl hover:bg-white hover:border-gray-200 border border-transparent transition-all shadow-sm">
+                                <span className="px-4 py-1.5 rounded-md font-black text-xs mr-4 w-24 text-center bg-uniacc-blue text-white shadow-sm tracking-wider">ASSURE</span> 
+                                <p className="text-sm text-gray-700 font-medium">Planificación y uso de recursos <strong className="text-gray-900 bg-white px-2 py-0.5 rounded shadow-sm border border-gray-200">(fase 4: Utilize)</strong>.</p>
+                            </div>
+                            <div className="flex items-center p-4 bg-gray-50 rounded-xl hover:bg-white hover:border-gray-200 border border-transparent transition-all shadow-sm">
+                                <span className="px-4 py-1.5 rounded-md font-black text-xs mr-4 w-24 text-center bg-uniacc-orange text-white shadow-sm tracking-wider">TPACK</span> 
+                                <p className="text-sm text-gray-700 font-medium">Integración pedagógica <strong className="text-gray-900 bg-white px-2 py-0.5 rounded shadow-sm border border-gray-200">(tú aportas el TK)</strong>.</p>
+                            </div>
+                            <div className="flex items-center p-4 bg-gray-50 rounded-xl hover:bg-white hover:border-gray-200 border border-transparent transition-all shadow-sm">
+                                <span className="px-4 py-1.5 rounded-md font-black text-xs mr-4 w-24 text-center bg-uniacc-pink text-white shadow-sm tracking-wider">DUA</span> 
+                                <p className="text-sm text-gray-700 font-medium">Accesibilidad universal (subtítulos, ALT, contrastes).</p>
+                            </div>
+                            <div className="flex items-center p-4 bg-gray-50 rounded-xl hover:bg-white hover:border-gray-200 border border-transparent transition-all shadow-sm">
+                                <span className="px-4 py-1.5 rounded-md font-black text-xs mr-4 w-24 text-center bg-gray-800 text-white shadow-sm tracking-wider">OLC</span> 
+                                <p className="text-sm text-gray-700 font-medium">Estándares internacionales de calidad (e-campus).</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="bg-white border border-gray-200 rounded-3xl p-8 shadow-sm hover:shadow-lg transition-shadow relative overflow-hidden flex flex-col">
+                        <div className="absolute right-0 top-0 h-full w-3 bg-uniacc-orange"></div>
+                        <div className="flex items-center mb-8 border-b border-gray-100 pb-4">
+                            <div className="p-3 rounded-xl bg-orange-50 mr-4 border border-orange-100 shadow-inner">
+                                <i data-lucide="refresh-cw" className="w-6 h-6 text-uniacc-orange"></i>
+                            </div>
+                            <h3 className="font-black text-xl text-gray-900">Flujo de trabajo y QA</h3>
+                        </div>
+                        
+                        <div className="relative pl-8 space-y-8 mb-8">
+                            <div className="absolute left-3.5 top-3 bottom-3 w-1 bg-gray-100 rounded-full"></div>
+                            
+                            <div className="relative">
+                                <div className="absolute -left-10 top-0 w-8 h-8 rounded-full border-4 border-white bg-gray-200 z-10 flex items-center justify-center font-bold text-xs text-gray-600 shadow-sm">1</div>
+                                <h4 className="font-black text-base text-gray-900">Elaboración</h4>
+                                <p className="text-sm text-gray-600 mt-1 font-medium">Diseño según términos de referencia (TR) en un plazo de <strong className="text-gray-900 bg-gray-100 px-2 py-0.5 rounded">5 días hábiles</strong>.</p>
+                            </div>
+                            <div className="relative">
+                                <div className="absolute -left-10 top-0 w-8 h-8 rounded-full border-4 border-white bg-uniacc-orange z-10 flex items-center justify-center font-bold text-xs text-white shadow-md">2</div>
+                                <h4 className="font-black text-base text-uniacc-orange">Filtro QA2</h4>
+                                <p className="text-sm text-gray-600 mt-1 font-medium">Revisión de recursos en el aula (funcionalidad, accesibilidad DUA, coherencia OLC).</p>
+                            </div>
+                            <div className="relative">
+                                <div className="absolute -left-10 top-0 w-8 h-8 rounded-full border-4 border-white bg-uniacc-blue z-10 flex items-center justify-center font-bold text-xs text-white shadow-sm">3</div>
+                                <h4 className="font-black text-base text-gray-900">Filtro QA3</h4>
+                                <p className="text-sm text-gray-600 mt-1 font-medium">Validación del contenido disciplinar por parte de la Escuela.</p>
+                            </div>
+                        </div>
+                        
+                        <div className="mt-auto p-5 rounded-2xl border border-orange-200 bg-orange-50 flex items-center justify-center text-center shadow-inner">
+                            <div>
+                                <p className="text-xs text-orange-800 uppercase font-black tracking-widest mb-1 flex items-center justify-center"><i data-lucide="clock" className="w-4 h-4 mr-2"></i> Plazo irrenunciable</p>
+                                <p className="text-base font-black text-gray-900">Corrección de observaciones en máx. 72 horas.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="bg-gray-900 rounded-3xl p-10 md:p-12 text-white shadow-xl overflow-hidden relative">
+                    <div className="absolute opacity-5 -right-20 -top-20">
+                        <i data-lucide="award" className="w-96 h-96"></i>
+                    </div>
+                    <h3 className="font-black text-2xl md:text-3xl mb-10 relative z-10 flex items-center justify-center text-center">
+                        <div className="bg-black p-3 rounded-2xl mr-4 border border-gray-800 shadow-inner">
+                            <i data-lucide="message-circle" className="w-8 h-8 text-uniacc-pink"></i> 
+                        </div>
+                        Demostrando avances y sello en tu discurso
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 relative z-10">
+                        <div className="bg-black/60 p-8 rounded-3xl border border-gray-700/50 hover:border-gray-500 transition-colors backdrop-blur-sm">
+                            <h4 className="font-black text-sm mb-5 uppercase tracking-widest text-gray-400">Si preguntan por avances (2023-2026):</h4>
+                            <ul className="text-base text-gray-300 space-y-4 font-medium">
+                                <li className="flex items-start"><i data-lucide="check-circle" className="w-5 h-5 mr-3 flex-shrink-0 text-green-400 mt-0.5"></i> <span>Plan de actualización de aulas (solución a recursos desfasados).</span></li>
+                                <li className="flex items-start"><i data-lucide="check-circle" className="w-5 h-5 mr-3 flex-shrink-0 text-green-400 mt-0.5"></i> <span>Formalización estricta de flujos y 3 filtros de calidad (QA).</span></li>
+                            </ul>
+                        </div>
+                        <div className="bg-black/60 p-8 rounded-3xl border border-gray-700/50 hover:border-gray-500 transition-colors backdrop-blur-sm">
+                            <h4 className="font-black text-sm mb-5 uppercase tracking-widest text-gray-400">Si preguntan cómo vives el sello:</h4>
+                            <ul className="text-base text-gray-300 space-y-4 font-medium">
+                                <li className="flex items-start"><i data-lucide="heart" className="w-5 h-5 mr-3 flex-shrink-0 text-uniacc-pink mt-0.5"></i> <span>Poner a la persona en el centro.</span></li>
+                                <li className="flex items-start"><i data-lucide="monitor" className="w-5 h-5 mr-3 flex-shrink-0 text-uniacc-pink mt-0.5"></i> <span>Tecnología con sentido ético e inclusión (aplicando accesibilidad digital DUA para no excluir a nadie).</span></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+
+        // --- MODELOS Y ESTANDARES DTP ---
+        const ModelosDTP = () => (
+            <div className="space-y-6">
+                <TitleHeader title="6. Modelos y estándares (Manual DTP)" docSource="ManualDTP.pdf" icon="monitor" />
+
+                <div className="flex flex-col md:flex-row gap-8 mb-12">
+                    <div className="flex-1 bg-white p-10 rounded-3xl border border-gray-200 shadow-sm relative overflow-hidden group hover:shadow-xl transition-all">
+                        <div className="absolute -right-10 -bottom-10 opacity-5 group-hover:opacity-10 transition-opacity group-hover:scale-110 duration-700">
+                            <i data-lucide="book-open" className="w-64 h-64 text-gray-800"></i>
+                        </div>
+                        <div className="p-4 bg-gray-50 rounded-2xl inline-block mb-6 border border-gray-100 shadow-inner group-hover:bg-white transition-colors">
+                            <i data-lucide="book-open" className="w-8 h-8 text-gray-500"></i>
+                        </div>
+                        <h4 className="font-black text-2xl mb-4 text-gray-900">
+                            Diseño instruccional
+                        </h4>
+                        <p className="text-base text-gray-600 leading-relaxed font-medium">Planificación sistemática basada en teorías del aprendizaje. <span className="bg-gray-100 text-gray-800 px-2 py-1 rounded-md border border-gray-200 shadow-sm">No es exclusivo de la educación digital</span> ni implica necesariamente el uso de tecnología.</p>
+                    </div>
+                    
+                    <div className="hidden md:flex items-center justify-center">
+                        <div className="bg-white p-3 rounded-full border border-gray-200 shadow-sm">
+                            <i data-lucide="arrow-right" className="w-6 h-6 text-gray-400"></i>
+                        </div>
+                    </div>
+
+                    <div className="flex-1 bg-white p-10 rounded-3xl shadow-md border border-blue-100 border-b-8 relative overflow-hidden group hover:shadow-xl transition-all" style={{borderBottomColor: 'var(--uniacc-blue)'}}>
+                        <div className="absolute -right-10 -bottom-10 opacity-10 group-hover:opacity-20 transition-opacity group-hover:scale-110 duration-700">
+                            <i data-lucide="cpu" className="w-64 h-64 text-uniacc-blue"></i>
+                        </div>
+                        <div className="p-4 rounded-2xl inline-block mb-6 bg-blue-50 border border-blue-100 shadow-inner group-hover:bg-white transition-colors">
+                            <i data-lucide="cpu" className="w-8 h-8 text-uniacc-blue"></i>
+                        </div>
+                        <h4 className="font-black text-2xl mb-4 text-uniacc-blue">
+                            Diseño tecnopedagógico
+                        </h4>
+                        <p className="text-base text-gray-700 leading-relaxed font-medium">Integración planificada y estratégica de tecnologías digitales alineadas con fundamentos pedagógicos para potenciar la enseñanza. <strong className="bg-uniacc-blue text-white px-3 py-1 rounded-md shadow-md ml-1 whitespace-nowrap">Aquí operas tú.</strong></p>
+                    </div>
+                </div>
+
+                <div className="bg-white p-10 rounded-3xl shadow-sm border border-gray-200 mb-12 relative overflow-hidden">
+                    <div className="text-center mb-10 relative z-10">
+                        <span className="text-xs font-black uppercase tracking-[0.2em] px-4 py-1.5 rounded-full bg-orange-50 mb-3 inline-block border border-orange-100 text-uniacc-orange shadow-sm">Tu marco de integración</span>
+                        <h3 className="font-black text-4xl text-gray-900 mb-4">El modelo TPACK</h3>
+                        <p className="text-base text-gray-600 max-w-2xl mx-auto font-medium">Integra el conocimiento tecnológico (TK), pedagógico (PK) y del contenido (CK). La construcción de aulas virtuales es un trabajo inherentemente interdisciplinario:</p>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10">
+                        {/* PCK */}
+                        <div className="p-8 rounded-2xl border border-gray-200 bg-gray-50 flex flex-col items-center text-center hover:shadow-md transition-shadow hover:bg-white">
+                            <div className="w-20 h-20 rounded-full bg-white shadow-sm border border-gray-200 flex items-center justify-center mb-6">
+                                <span className="font-black text-2xl text-gray-400">PCK</span>
+                            </div>
+                            <h4 className="font-black text-xl mb-2 text-gray-900">Docente Constructor</h4>
+                            <p className="text-[10px] text-gray-500 mb-4 uppercase tracking-[0.2em] font-bold bg-white px-3 py-1 rounded-full border border-gray-200 shadow-sm">Pedagogical Content</p>
+                            <p className="text-sm text-gray-600 font-medium">Experto en el tema disciplinar. Construye el plan, los recursos base y las evaluaciones.</p>
+                        </div>
+                        
+                        {/* TPACK */}
+                        <div className="p-8 rounded-2xl border border-pink-100 bg-pink-50/50 flex flex-col items-center text-center hover:shadow-md transition-shadow hover:bg-white">
+                            <div className="w-20 h-20 rounded-full bg-white shadow-sm border border-pink-200 flex items-center justify-center mb-6">
+                                <span className="font-black text-xl text-uniacc-pink">TPACK</span>
+                            </div>
+                            <h4 className="font-black text-xl mb-2 text-gray-900">Diseñador Tecnopedagógico</h4>
+                            <p className="text-[10px] text-uniacc-pink mb-4 uppercase tracking-[0.2em] font-bold bg-white px-3 py-1 rounded-full border border-pink-100 shadow-sm">Equilibrio total</p>
+                            <p className="text-sm text-gray-700 font-medium">Estructura la ruta de aprendizaje, selecciona metodologías activas y orquesta la secuencia instruccional.</p>
+                        </div>
+                        
+                        {/* TK / TPK */}
+                        <div className="p-8 rounded-2xl border-[3px] border-uniacc-orange flex flex-col items-center text-center hover:shadow-xl transition-all transform md:-translate-y-4 bg-white relative">
+                            <div className="absolute top-0 right-0 bg-uniacc-orange text-white text-[10px] font-black uppercase tracking-widest px-4 py-1.5 rounded-bl-xl rounded-tr-xl shadow-sm">Tu Área</div>
+                            <div className="w-20 h-20 rounded-full shadow-lg flex items-center justify-center mb-6 bg-uniacc-orange text-white">
+                                <span className="font-black text-xl leading-tight">TK<br/>TPK</span>
+                            </div>
+                            <h4 className="font-black text-xl mb-2 text-uniacc-orange">Coord. Gráfica</h4>
+                            <p className="text-[10px] text-orange-800 mb-4 uppercase tracking-[0.2em] font-bold bg-orange-50 px-3 py-1 rounded-full border border-orange-100 shadow-sm">Tech. Pedagogical</p>
+                            <p className="text-sm text-gray-800 font-bold">Traduce la secuencia pedagógica a piezas visuales y audiovisuales funcionales, asegurando usabilidad e impacto.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+                    <div className="bg-white border border-gray-200 rounded-3xl p-8 shadow-sm hover:shadow-xl hover:-translate-y-2 transition-all text-center group flex flex-col">
+                        <div className="w-20 h-20 mx-auto rounded-2xl bg-blue-50 flex items-center justify-center mb-6 group-hover:bg-uniacc-blue transition-colors border border-blue-100 group-hover:border-uniacc-blue shadow-inner">
+                            <i data-lucide="layers" className="w-10 h-10 text-uniacc-blue group-hover:text-white transition-colors"></i>
+                        </div>
+                        <h4 className="font-black text-xl mb-3 text-gray-900">Modelo ASSURE</h4>
+                        <p className="text-sm text-gray-500 mb-6 font-medium flex-grow">6 fases centradas en el estudiante. Sustituyó al rígido modelo ADDIE.</p>
+                        <div className="bg-gray-50 p-5 rounded-2xl text-sm text-gray-700 text-left border border-gray-100 shadow-sm">
+                            Tu labor clave está en la fase 4: <strong className="text-gray-900 block mt-1 bg-white p-2 rounded border border-gray-200 text-center">"Utilize media and materials"</strong>
+                        </div>
+                    </div>
+                    <div className="bg-white border border-gray-200 rounded-3xl p-8 shadow-sm hover:shadow-xl hover:-translate-y-2 transition-all text-center group flex flex-col">
+                        <div className="w-20 h-20 mx-auto rounded-2xl bg-orange-50 flex items-center justify-center mb-6 group-hover:bg-uniacc-orange transition-colors border border-orange-100 group-hover:border-uniacc-orange shadow-inner">
+                            <i data-lucide="award" className="w-10 h-10 text-uniacc-orange group-hover:text-white transition-colors"></i>
+                        </div>
+                        <h4 className="font-black text-xl mb-3 text-gray-900">Estándares OLC</h4>
+                        <p className="text-sm text-gray-500 mb-6 font-medium flex-grow">Online Learning Consortium. Certifica que el aula virtual sea equivalente a la presencial.</p>
+                        <div className="bg-gray-50 p-5 rounded-2xl text-sm text-gray-700 text-left border border-gray-100 shadow-sm">
+                            Evalúa el <strong className="text-uniacc-orange bg-orange-50 px-2 py-0.5 rounded">diseño esencial</strong> (organización, navegabilidad, coherencia) donde el UX/UI es vital.
+                        </div>
+                    </div>
+                    <div className="bg-white border border-gray-200 rounded-3xl p-8 shadow-sm hover:shadow-xl hover:-translate-y-2 transition-all text-center group flex flex-col">
+                        <div className="w-20 h-20 mx-auto rounded-2xl bg-pink-50 flex items-center justify-center mb-6 group-hover:bg-uniacc-pink transition-colors border border-pink-100 group-hover:border-uniacc-pink shadow-inner">
+                            <i data-lucide="eye" className="w-10 h-10 text-uniacc-pink group-hover:text-white transition-colors"></i>
+                        </div>
+                        <h4 className="font-black text-xl mb-3 text-gray-900">Pautas DUA</h4>
+                        <p className="text-sm text-gray-500 mb-6 font-medium flex-grow">Diseño Universal para el Aprendizaje. Reduce barreras y asegura opciones multimodales.</p>
+                        <div className="bg-gray-50 p-5 rounded-2xl text-sm text-gray-700 text-left border border-gray-100 shadow-sm flex flex-wrap gap-2 justify-center">
+                            <span className="bg-white px-2 py-1 rounded border border-gray-200 text-xs font-bold shadow-sm">Subtítulos</span>
+                            <span className="bg-white px-2 py-1 rounded border border-gray-200 text-xs font-bold shadow-sm">Etiquetas ALT</span>
+                            <span className="bg-white px-2 py-1 rounded border border-gray-200 text-xs font-bold shadow-sm">Contrastes</span>
+                        </div>
+                    </div>
+                </div>
+
+                <RoleAlert title="El núcleo de tu discurso evaluativo">
+                    <p>Frente a los pares, debes enfatizar que tus gráficas <strong>NO son decorativas</strong>. Son "traducciones tecnopedagógicas" (modelo TPACK) que se insertan en la fase <em>"Utilize"</em> del modelo ASSURE. Cada cápsula y esquema que diseñas respeta los estándares OLC de usabilidad y los principios DUA de accesibilidad, garantizando que todos los estudiantes puedan alcanzar los resultados de aprendizaje (RA).</p>
+                </RoleAlert>
+            </div>
+        );
+
+        // --- FLUJO QA Y SUPERACION DE BRECHAS ---
+        const FlujoQA = () => (
+            <div className="space-y-6">
+                <TitleHeader title="7. Flujo QA y superación de brechas" docSource="DAVDA_MinutaAvancesModalidades2023-2026.pdf" icon="check-circle" />
+
+                <div className="bg-white p-10 rounded-3xl shadow-sm border border-gray-200 mb-10">
+                    <h3 className="text-3xl font-black mb-8 text-center text-gray-900">Evolución institucional <span className="text-gray-400 font-medium px-2">2023 vs 2026</span></h3>
+                    <div className="flex flex-col lg:flex-row gap-0 rounded-3xl overflow-hidden border border-gray-200 shadow-md">
+                        <div className="flex-1 bg-gray-50 p-10 border-b lg:border-b-0 lg:border-r border-gray-200 relative group">
+                            <div className="absolute top-0 right-0 p-6 opacity-5 group-hover:scale-110 transition-transform"><i data-lucide="alert-triangle" className="w-40 h-40 text-gray-500"></i></div>
+                            <div className="flex items-center text-gray-500 mb-8 relative z-10 border-b border-gray-200 pb-4">
+                                <div className="p-3 bg-white rounded-xl shadow-sm mr-4 border border-gray-100">
+                                    <i data-lucide="history" className="w-8 h-8"></i>
+                                </div>
+                                <h3 className="font-black text-2xl uppercase tracking-widest text-gray-600">El Pasado (2023)</h3>
+                            </div>
+                            <ul className="text-base text-gray-600 space-y-6 relative z-10 font-medium">
+                                <li className="flex items-start bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+                                    <i data-lucide="x" className="w-6 h-6 mr-4 text-red-400 flex-shrink-0 mt-0.5"></i>
+                                    <span><strong className="text-gray-900 block mb-1">Recursos desfasados:</strong> Estudiantes reportaron videos antiguos (de 2019) y software obsoleto, especialmente en Advance.</span>
+                                </li>
+                                <li className="flex items-start bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+                                    <i data-lucide="x" className="w-6 h-6 mr-4 text-red-400 flex-shrink-0 mt-0.5"></i>
+                                    <span><strong className="text-gray-900 block mb-1">Modelo rígido:</strong> Se usaba el modelo ADDIE de forma estructurada pero sin manuales ni términos de referencia vinculantes.</span>
+                                </li>
+                                <li className="flex items-start bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+                                    <i data-lucide="x" className="w-6 h-6 mr-4 text-red-400 flex-shrink-0 mt-0.5"></i>
+                                    <span><strong className="text-gray-900 block mb-1">Validación débil:</strong> El control recaía casi solo en el profesional constructor y la escuela.</span>
+                                </li>
+                            </ul>
+                        </div>
+                        <div className="hidden lg:flex items-center justify-center bg-transparent w-0 z-10 relative">
+                            <div className="absolute bg-white rounded-full p-4 border-8 border-gray-50 shadow-lg">
+                                <i data-lucide="arrow-right" className="w-8 h-8 text-gray-400"></i>
+                            </div>
+                        </div>
+                        <div className="flex-1 bg-white p-10 relative group">
+                            <div className="absolute top-0 right-0 w-full h-2 bg-uniacc-orange"></div>
+                            <div className="absolute top-0 right-0 p-6 opacity-5 group-hover:scale-110 transition-transform"><i data-lucide="check-circle" className="w-40 h-40 text-uniacc-orange"></i></div>
+                            
+                            <div className="flex items-center mb-8 relative z-10 border-b border-gray-100 pb-4 text-uniacc-orange">
+                                <div className="p-3 bg-orange-50 rounded-xl shadow-inner mr-4 border border-orange-100">
+                                    <i data-lucide="zap" className="w-8 h-8"></i>
+                                </div>
+                                <h3 className="font-black text-2xl uppercase tracking-widest">El Presente (2026)</h3>
+                            </div>
+                            <ul className="text-base text-gray-700 space-y-6 relative z-10 font-medium">
+                                <li className="flex items-start bg-gray-50 p-4 rounded-xl shadow-sm border border-gray-100 hover:bg-white transition-colors">
+                                    <i data-lucide="check" className="w-6 h-6 mr-4 flex-shrink-0 mt-0.5 text-uniacc-orange"></i>
+                                    <span><strong className="text-gray-900 block mb-1">Modelo ASSURE y Manual DTP:</strong> Andamiaje normativo vinculante con un enfoque flexible centrado en el estudiante.</span>
+                                </li>
+                                <li className="flex items-start bg-gray-50 p-4 rounded-xl shadow-sm border border-gray-100 hover:bg-white transition-colors">
+                                    <i data-lucide="check" className="w-6 h-6 mr-4 flex-shrink-0 mt-0.5 text-uniacc-orange"></i>
+                                    <span><strong className="text-gray-900 block mb-1">Flujo de 3 QA:</strong> Cada asignatura pasa por controles rigurosos (QA1, QA2, QA3) basados en estándares OLC antes de publicarse.</span>
+                                </li>
+                                <li className="flex items-start bg-gray-50 p-4 rounded-xl shadow-sm border border-gray-100 hover:bg-white transition-colors">
+                                    <i data-lucide="check" className="w-6 h-6 mr-4 flex-shrink-0 mt-0.5 text-uniacc-orange"></i>
+                                    <span><strong className="text-gray-900 block mb-1">Plataforma NIMBI:</strong> Implementada para seguimiento, ficha 360 y modelo predictivo de deserción.</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="bg-white p-10 rounded-3xl shadow-sm border border-gray-200 mb-10">
+                    <div className="flex flex-col md:flex-row items-center justify-between mb-10 pb-6 border-b border-gray-100 gap-4">
+                        <h3 className="font-black text-2xl flex items-center text-gray-900">
+                            <div className="p-3 bg-gray-50 rounded-xl mr-4 border border-gray-200 shadow-inner">
+                                <i data-lucide="bar-chart-2" className="w-6 h-6 text-gray-600"></i>
+                            </div>
+                            Avance en rediseño de aulas
+                        </h3>
+                        <div className="flex flex-col items-center">
+                            <span className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-1">Proyección de cierre total</span>
+                            <span className="text-sm font-black px-4 py-2 rounded-full bg-black text-white shadow-md flex items-center">
+                                <i data-lucide="flag" className="w-4 h-4 mr-2 text-uniacc-orange"></i> Meta: 2027
+                            </span>
+                        </div>
+                    </div>
+                    
+                    {/* SVG Circular Progress Bars */}
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                        <CircularProgress percentage={85} color="var(--uniacc-orange)" label="Psicología" />
+                        <CircularProgress percentage={80} color="var(--uniacc-pink)" label="DIAM" />
+                        <CircularProgress percentage={65} color="var(--uniacc-blue)" label="Arquitectura" />
+                        <CircularProgress percentage={65} color="var(--uniacc-grey)" label="Derecho" />
+                    </div>
+                </div>
+
+                <div className="bg-gray-900 p-10 md:p-16 rounded-3xl shadow-xl border border-gray-800 mb-8 relative overflow-hidden">
+                    {/* Decorative background lines */}
+                    <div className="absolute inset-0 opacity-10">
+                        <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+                                    <path d="M 40 0 L 0 0 0 40" fill="none" stroke="white" strokeWidth="1"/>
+                                </pattern>
+                            </defs>
+                            <rect width="100%" height="100%" fill="url(#grid)" />
+                        </svg>
+                    </div>
+                    
+                    <div className="text-center mb-16 relative z-10">
+                        <span className="text-[10px] font-black uppercase tracking-[0.2em] px-4 py-1.5 rounded-full bg-gray-800 mb-4 inline-block border border-gray-700 text-gray-300 shadow-sm">Andamiaje de Calidad</span>
+                        <h3 className="font-black text-3xl md:text-4xl text-white mb-4">El flujo formal de validación</h3>
+                        <p className="text-base text-gray-400 max-w-2xl mx-auto font-medium">Este circuito garantiza que ningún material obsoleto llegue al e-campus. Las observaciones deben subsanarse en plazos estrictos.</p>
+                    </div>
+                    
+                    <div className="relative max-w-4xl mx-auto z-10">
+                        {/* Connecting line */}
+                        <div className="absolute left-10 top-10 bottom-10 w-1 bg-gray-800 rounded-full md:left-1/2 md:-ml-0.5 shadow-inner"></div>
+                        
+                        <div className="space-y-12">
+                            {/* Step 1 */}
+                            <div className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group">
+                                <div className="flex items-center justify-center w-20 h-20 rounded-full border-4 border-gray-900 font-black text-2xl shadow-lg shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10 bg-gray-100 text-gray-500 hover:scale-110 transition-transform">1</div>
+                                <div className="w-[calc(100%-6rem)] md:w-[calc(50%-4rem)] bg-black/60 backdrop-blur-md p-8 rounded-3xl border border-gray-700 shadow-xl hover:border-gray-500 transition-colors">
+                                    <h4 className="font-black text-white text-xl mb-3 flex items-center"><i data-lucide="pen-tool" className="w-5 h-5 mr-3 text-gray-400"></i> Elaboración técnica</h4>
+                                    <p className="text-sm text-gray-400 leading-relaxed font-medium">Diseño del recurso a partir de los términos de referencia (TR). Tienes un máximo de <strong className="text-white bg-gray-800 px-2 py-1 rounded shadow-sm border border-gray-700 ml-1">5 días hábiles</strong>.</p>
+                                </div>
+                            </div>
+                            {/* Step 2 */}
+                            <div className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group">
+                                <div className="flex items-center justify-center w-20 h-20 rounded-full border-4 border-gray-900 font-black text-2xl shadow-[0_0_20px_rgba(243,112,33,0.4)] shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10 text-white bg-uniacc-orange hover:scale-110 transition-transform">2</div>
+                                <div className="w-[calc(100%-6rem)] md:w-[calc(50%-4rem)] bg-black/80 backdrop-blur-md p-8 rounded-3xl border-2 shadow-2xl transform md:-translate-y-2 relative border-uniacc-orange">
+                                    <div className="absolute top-0 right-0 bg-uniacc-orange text-white text-[10px] font-black uppercase tracking-widest px-4 py-1.5 rounded-bl-xl rounded-tr-3xl shadow-sm">Tu Área</div>
+                                    <h4 className="font-black text-xl mb-3 flex items-center text-white"><i data-lucide="check-square" className="w-5 h-5 mr-3 text-uniacc-orange"></i> Filtro QA2</h4>
+                                    <p className="text-sm text-gray-300 leading-relaxed font-medium mb-4">Revisión técnica y visual. El GPO y tu equipo auditan el aula de forma rigurosa.</p>
+                                    <div className="bg-gray-900 p-3 rounded-xl border border-gray-800 flex flex-wrap gap-2 justify-center shadow-inner">
+                                        <span className="text-xs font-bold text-gray-400 flex items-center"><i data-lucide="check" className="w-3 h-3 mr-1 text-uniacc-orange"></i> OLC</span>
+                                        <span className="text-xs font-bold text-gray-400 flex items-center"><i data-lucide="check" className="w-3 h-3 mr-1 text-uniacc-orange"></i> DUA</span>
+                                        <span className="text-xs font-bold text-gray-400 flex items-center"><i data-lucide="check" className="w-3 h-3 mr-1 text-uniacc-orange"></i> Enlaces</span>
+                                    </div>
+                                </div>
+                            </div>
+                            {/* Step 3 */}
+                            <div className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group">
+                                <div className="flex items-center justify-center w-20 h-20 rounded-full border-4 border-gray-900 font-black text-2xl shadow-[0_0_20px_rgba(62,140,191,0.4)] shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10 text-white bg-uniacc-blue hover:scale-110 transition-transform">3</div>
+                                <div className="w-[calc(100%-6rem)] md:w-[calc(50%-4rem)] bg-black/60 backdrop-blur-md p-8 rounded-3xl border border-gray-700 shadow-xl hover:border-uniacc-blue transition-colors">
+                                    <h4 className="font-black text-xl mb-3 flex items-center text-white"><i data-lucide="graduation-cap" className="w-5 h-5 mr-3 text-uniacc-blue"></i> Filtro QA3</h4>
+                                    <p className="text-sm text-gray-400 leading-relaxed font-medium">Validación disciplinar. La escuela y directores validan en el aula máster que el contenido académico sea el correcto y esté alineado al programa.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <RoleAlert title="Respuesta clave sobre errores y flujos">
+                    <p className="mb-2">Si los pares preguntan: <em>"¿Qué pasa si un docente envía un recurso desactualizado o que no cumple con la accesibilidad?"</em>. Tu respuesta debe ser tajante:</p>
+                    <p className="text-lg mb-3"><strong className="text-uniacc-pink">"El sistema no lo permite"</strong>.</p>
+                    <p>El flujo formal bloquea la salida de ese material. Si hay observaciones en el QA2 o QA3, el área gráfica tiene un plazo irrenunciable de <strong className="bg-white px-3 py-1 rounded shadow-sm border border-pink-200 text-pink-700 mx-1">72 horas</strong> para ajustarlo (ponerle subtítulos, mejorar contraste, etc.) antes de que se publique para los estudiantes.</p>
+                </RoleAlert>
+            </div>
+        );
+
+        // --- GLOSARIO ---
+        const Glosario = () => {
+            const terminos = [
+                { term: 'CNA', desc: 'Comisión Nacional de Acreditación. Organismo estatal que audita y verifica el cumplimiento de los estándares de calidad y la equivalencia académica.', color: 'var(--uniacc-pink)' },
+                { term: 'ASSURE', desc: 'Modelo de diseño instruccional enfocado en el estudiante (Analizar, Establecer objetivos, Seleccionar estrategias/recursos, Utilizar recursos, Requerir participación, Evaluar). Tu área gráfica interviene fuertemente en fase 4: Select/Utilize.', color: 'var(--uniacc-blue)' },
+                { term: 'AVA / e-campus', desc: 'Ambiente virtual de aprendizaje. La plataforma oficial (LMS) donde se montan los recursos y ocurre la interacción formativa.', color: 'var(--uniacc-grey)' },
+                { term: 'DAVDA', desc: 'Dirección de Ambientes Virtuales de Aprendizaje. La dirección a la que perteneces y que lidera el rediseño.', color: 'var(--uniacc-orange)' },
+                { term: 'DUA', desc: 'Diseño Universal para el Aprendizaje. Marco que busca inclusión reduciendo barreras. Exige subtítulos, descripciones ALT, buenos contrastes y navegación clara.', color: 'var(--uniacc-pink)' },
+                { term: 'GPO', desc: 'Gestor de proyectos. Profesional que orquesta el avance y realiza las revisiones técnicas (QA2) en el aula.', color: 'var(--uniacc-black)' },
+                { term: 'IL', desc: 'Indicadores de logro. Criterios medibles que desglosan un RA para verificar si el estudiante alcanzó la competencia.', color: 'var(--uniacc-blue)' },
+                { term: 'NIMBI', desc: 'Plataforma implementada en 2025 para el seguimiento estudiantil (ficha 360) y modelos predictivos de alerta temprana contra la deserción.', color: 'var(--uniacc-orange)' },
+                { term: 'OLC', desc: 'Online Learning Consortium. Estándares y rúbricas internacionales adoptadas por UNIACC para certificar la calidad y usabilidad de las aulas virtuales (diseño esencial).', color: 'var(--uniacc-pink)' },
+                { term: 'QA2', desc: 'Filtro de quality assurance n°2. Revisión técnica, visual y de accesibilidad DUA que realiza el equipo de producción/GPO en el aula virtual.', color: 'var(--uniacc-orange)' },
+                { term: 'QA3', desc: 'Filtro de quality assurance n°3. Validación final del contenido disciplinar por parte del director o escuela académica en el aula máster.', color: 'var(--uniacc-blue)' },
+                { term: 'QuIP', desc: 'Qualitative Impact Protocol. Metodología cualitativa usada por la DIP para recopilar "historias de cambio" y medir el impacto real.', color: 'var(--uniacc-grey)' },
+                { term: 'RA', desc: 'Resultados de aprendizaje. Declaraciones explícitas de lo que se espera que el estudiante sepa, comprenda y sea capaz de hacer (el núcleo de tu diseño).', color: 'var(--uniacc-black)' },
+                { term: 'TPACK', desc: 'Technological Pedagogical Content Knowledge. Modelo que integra saberes. Tu rol es aportar la dimensión tecnológica (TK) y tecnológico-pedagógica (TPK).', color: 'var(--uniacc-orange)' },
+                { term: 'TR', desc: 'Términos de referencia. El documento normativo que estipula formatos, plazos y flujos (ej. los 5 días para diseñar y 72 horas para correcciones).', color: 'var(--uniacc-blue)' }
+            ];
+
+            return (
+                <div className="space-y-6">
+                    <TitleHeader title="8. Glosario de términos institucionales" docSource="Documentos institucionales 2026" icon="book" />
+                    
+                    <div className="bg-white p-8 md:p-12 rounded-3xl shadow-sm border border-gray-200">
+                        <div className="bg-gray-900 p-6 rounded-2xl mb-10 flex flex-col md:flex-row items-center justify-between shadow-lg">
+                            <div className="flex items-center mb-4 md:mb-0">
+                                <div className="p-3 bg-gray-800 rounded-xl mr-4 border border-gray-700 shadow-inner">
+                                    <i data-lucide="mouse-pointer-click" className="w-6 h-6 text-uniacc-orange"></i>
+                                </div>
+                                <div>
+                                    <h3 className="text-white font-black text-lg">Aprendizaje Activo</h3>
+                                    <p className="text-gray-400 text-sm font-medium">Lee el término, intenta recordarlo y haz clic para verificar.</p>
+                                </div>
+                            </div>
+                            <span className="text-xs font-bold uppercase tracking-widest px-4 py-2 bg-black rounded-full border border-gray-700 text-gray-300">15 Términos clave</span>
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                            {terminos.map((item, idx) => (
+                                <FlipCard key={idx} term={item.term} desc={item.desc} color={item.color} />
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // --- SIMULADOR ---
+        const Simulador = () => {
+            const qaList = [
+                {
+                    q: 'En su rol dentro de la DAVDA, ¿cómo asegura que el diseño gráfico y la producción multimedia no sean solo elementos estéticos, sino que aporten al aprendizaje real?',
+                    a: 'Nuestra labor parte directamente del plan de asignatura y de la secuencia instruccional. No producimos recursos de forma aislada; cada infografía, cápsula o recurso interactivo se diseña en estricta coherencia con los resultados de aprendizaje (RA) e indicadores de logro (IL). Nos basamos en el modelo TPACK, donde nuestra función aporta el conocimiento tecnológico-visual en función del contenido, garantizando pertinencia y comprensión.'
+                },
+                {
+                    q: '¿Cómo se organiza el flujo de producción de estos recursos y qué filtros de control de calidad atraviesan antes de que el estudiante los vea en e-campus?',
+                    a: 'Trabajamos bajo un flujo estandarizado regulado por los términos de referencia (TR). Primero es la elaboración (en un plazo estipulado de 5 días hábiles). Luego viene la revisión QA2, donde el GPO y el equipo técnico validan en el aula virtual el cumplimiento de TR, accesibilidad DUA y coherencia visual. Finalmente, la escuela realiza la validación disciplinar (QA3). Si requieren ajustes, el equipo aplica los cambios en un plazo no mayor a 72 horas.'
+                },
+                {
+                    q: 'Considerando la diversidad de estudiantes de UNIACC y sus distintas modalidades, ¿cómo garantizan la accesibilidad de los recursos digitales?',
+                    a: 'Diseñamos bajo los principios del Diseño Universal para el Aprendizaje (DUA) y los estándares del Online Learning Consortium (OLC). Aseguramos opciones multimodales como lecturas accesibles, transcripciones, subtítulos en cápsulas audiovisuales y descripciones alternativas (ALT) para material visual. Cuidamos la navegación intuitiva y contrastes cromáticos legibles para reducir barreras.'
+                },
+                {
+                    q: 'En el proceso de 2023 se observaron desfases en recursos y videos antiguos, especialmente en Advance. ¿Qué acciones concretas implementaron para solucionar esto?',
+                    a: 'Se implementó un plan riguroso de rediseño y actualización curricular liderado por la DAVDA. Se establecieron los TR y el Manual DTP. Hoy, el flujo formal de 3 niveles de QA asegura que ningún material desactualizado entre al aula. Además, hemos avanzado sustantivamente en la actualización: Psicología con cerca del 85%, DIAM al 80%, y Arquitectura y Cs. Jurídicas en torno al 65%, con proyección de cierre total hacia 2027.'
+                },
+                {
+                    q: 'El sello formativo de UNIACC es el "Humanismo para el siglo XXI". ¿Cómo se traduce ese sello en su coordinación de diseño?',
+                    a: 'El humanismo significa poner a la persona en el centro e integrar tecnología con sentido ético. En nuestro equipo esto se vive en la "inclusión", diseñando con accesibilidad DUA para respetar la dignidad de quien está frente a la pantalla, y en la "estimulación crítica", creando piezas visuales que fomenten el pensamiento crítico y la creatividad, que son atributos de nuestro modelo educativo.'
+                }
+            ];
+
+            return (
+                <div className="space-y-6">
+                    <TitleHeader title="9. Simulador de entrevista" docSource="Guía de preparación oficial 2026" icon="message-square" />
+                    
+                    <div className="bg-white p-8 md:p-12 rounded-3xl shadow-sm border border-gray-200">
+                        
+                        <div className="bg-[#1a1a1a] p-8 md:p-10 rounded-3xl mb-12 shadow-2xl text-white relative overflow-hidden border-t-8 border-uniacc-pink">
+                            <div className="absolute -right-10 -bottom-10 opacity-5">
+                                <i data-lucide="shield-alert" className="w-72 h-72" style={{color: 'var(--uniacc-pink)'}}></i>
+                            </div>
+                            <h3 className="font-black text-2xl mb-8 flex items-center relative z-10" style={{color: 'var(--uniacc-pink)'}}>
+                                <div className="bg-pink-900/40 p-3 rounded-xl mr-4 border border-pink-900/50 shadow-inner">
+                                    <i data-lucide="shield-alert" className="w-6 h-6"></i> 
+                                </div>
+                                Consejos prácticos para la entrevista
+                            </h3>
+                            
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-10 relative z-10">
+                                <div className="space-y-8">
+                                    <div className="bg-black/40 p-6 rounded-2xl border border-gray-800 hover:border-gray-600 transition-colors shadow-sm">
+                                        <h4 className="font-black text-base mb-3 flex items-center" style={{color: 'var(--uniacc-orange)'}}>
+                                            <div className="p-1.5 bg-orange-900/30 rounded-md mr-3"><i data-lucide="help-circle" className="w-4 h-4"></i></div>
+                                            ¿Qué hacer si NO sabes la respuesta?
+                                        </h4>
+                                        <p className="text-sm text-gray-300 leading-relaxed font-medium">Evita improvisar. Señala con seguridad que la información será verificada y canaliza la consulta a la unidad responsable o a la VRACAI.</p>
+                                    </div>
+                                    <div className="bg-black/40 p-6 rounded-2xl border border-gray-800 hover:border-gray-600 transition-colors shadow-sm">
+                                        <h4 className="font-black text-base mb-3 flex items-center" style={{color: 'var(--uniacc-blue)'}}>
+                                            <div className="p-1.5 bg-blue-900/30 rounded-md mr-3"><i data-lucide="history" className="w-4 h-4"></i></div>
+                                            ¿Cómo hablar de nuestras brechas?
+                                        </h4>
+                                        <p className="text-sm text-gray-300 leading-relaxed font-medium">Con honestidad y foco en la mejora. Reconoce lo que requería fortalecimiento y explica las acciones actuales y el plan de mejoramiento institucional (PMI).</p>
+                                    </div>
+                                </div>
+                                <div className="bg-gray-800 p-8 rounded-2xl border border-gray-700 flex flex-col h-full shadow-inner">
+                                    <h4 className="font-black text-sm uppercase tracking-widest mb-6 text-gray-400 flex items-center">
+                                        <i data-lucide="type" className="w-5 h-5 mr-3"></i> Léxico obligatorio a usar:
+                                    </h4>
+                                    <div className="flex flex-wrap gap-3 mt-auto">
+                                        {['DAVDA', 'e-campus', 'Resultados de aprendizaje', 'Términos de referencia (TR)', 'QA2 / QA3', 'ASSURE', 'DUA', 'CNA'].map((word, i) => (
+                                            <span key={i} className="bg-black text-gray-200 px-4 py-2 rounded-lg text-xs font-bold border border-gray-600 shadow-sm hover:border-gray-400 transition-colors">{word}</span>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="space-y-6">
+                            <div className="text-center mb-12 border-b border-gray-100 pb-8">
+                                <span className="text-[10px] font-black uppercase tracking-[0.2em] px-4 py-1.5 rounded-full bg-blue-50 mb-4 inline-block border border-blue-100 text-uniacc-blue shadow-sm">Modo Prueba</span>
+                                <h3 className="font-black text-3xl mb-4" style={{color: 'var(--uniacc-black)'}}>Preguntas de ensayo (Visita de pares)</h3>
+                                <p className="text-gray-600 text-sm max-w-2xl mx-auto font-medium leading-relaxed">Lee la pregunta del par evaluador, piensa y verbaliza tu respuesta en voz alta. Solo cuando estés listo, haz clic en el botón para revelar el guion institucional esperado.</p>
+                            </div>
+                            
+                            {qaList.map((item, idx) => (
+                                <SimQuestion key={idx} q={item.q} a={item.a} />
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+
+        // Ensure icons load when tab changes
+        useEffect(() => {
+            if (window.lucide) {
+                window.lucide.createIcons();
+            }
+        });
+    </script>
+</body>
+</html>
